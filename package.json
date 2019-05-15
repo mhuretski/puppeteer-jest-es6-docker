@@ -1,0 +1,34 @@
+{
+    "name": "puppet-jest-es6",
+    "version": "1.0.0",
+    "description": "Chronium Tests",
+    "main": "index.js",
+    "jest": {
+        "setupFilesAfterEnv": [
+            "<rootDir>/src/config/jestProps.js"
+        ],
+        "reporters": [
+            "default",
+            "<rootDir>/src/config/reporter.js"
+        ]
+    },
+    "scripts": {
+        "test": "jest"
+    },
+    "keywords": [],
+    "author": "mhuretski",
+    "license": "ISC",
+    "devDependencies": {
+        "@babel/core": "^7.4.3",
+        "@babel/plugin-transform-runtime": "^7.4.3",
+        "@babel/preset-env": "^7.4.3",
+        "@babel/runtime": "^7.4.3",
+        "babel-jest": "^24.7.1",
+        "jest": "^24.7.1",
+        "node-datetime": "^2.1.2",
+        "puppeteer": "^1.14.0"
+    },
+    "dependencies": {
+        "write-file-p": "^1.0.7"
+    }
+}
