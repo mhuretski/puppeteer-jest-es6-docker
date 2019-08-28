@@ -1,34 +1,91 @@
 {
-    "name": "puppet-jest-es6",
+    "name": "puppeteer-jest-es6",
     "version": "1.0.0",
-    "description": "Chronium Tests",
+    "description": "End to End, API, Front performance tests",
     "main": "index.js",
     "jest": {
+        "testRegex": "/tests\/.*(api|ui|soap|spec|rest|perf)\\.[jt]sx?$",
         "setupFilesAfterEnv": [
-            "<rootDir>/src/config/jestProps.js"
+            "<rootDir>/src/app/config/jest.settings.ts"
         ],
         "reporters": [
             "default",
-            "<rootDir>/src/config/reporter.js"
+            "<rootDir>/src/app/util/report/reporter.js",
+            "jest-html-reporter",
+            "jest-junit"
         ]
     },
     "scripts": {
-        "test": "jest"
+        "test": "jest",
+        "check-types": "tsc"
+    },
+    "jest-junit": {
+        "suiteName": "Test Execution",
+        "outputDirectory": "./result/junit/",
+        "outputName": "report.xml",
+        "suiteNameTemplate": "{filepath}",
+        "classNameTemplate": "{classname}",
+        "ancestorSeparator": ".",
+        "addFileAttribute": true,
+        "includeConsoleOutput": true,
+        "titleTemplate": "{title}"
+    },
+    "jest-html-reporter": {
+        "pageTitle": "Test Execution",
+        "outputPath": "./result/html/report.html",
+        "includeFailureMsg": true
     },
     "keywords": [],
     "author": "mhuretski",
     "license": "ISC",
     "devDependencies": {
-        "@babel/core": "^7.4.3",
-        "@babel/plugin-transform-runtime": "^7.4.3",
-        "@babel/preset-env": "^7.4.3",
-        "@babel/runtime": "^7.4.3",
-        "babel-jest": "^24.7.1",
-        "jest": "^24.7.1",
-        "node-datetime": "^2.1.2",
-        "puppeteer": "^1.14.0"
+        "@babel/core": "^7.5.5",
+        "@babel/plugin-proposal-class-properties": "^7.5.5",
+        "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+        "@babel/plugin-transform-runtime": "^7.5.5",
+        "@babel/plugin-transform-typescript": "^7.5.5",
+        "@babel/preset-env": "^7.5.5",
+        "@babel/preset-typescript": "^7.3.3",
+        "@babel/runtime": "^7.5.5",
+        "@jest/core": "^24.8.0",
+        "@types/eslint": "^4.16.6",
+        "@types/jest": "^24.0.17",
+        "@types/jest-image-snapshot": "^2.8.0",
+        "@types/lodash": "^4.14.136",
+        "@types/puppeteer": "^1.19.0",
+        "@types/xml2js": "^0.4.4",
+        "babel-eslint": "^10.0.2",
+        "babel-jest": "^24.8.0",
+        "babel-plugin-module-resolver": "^3.2.0",
+        "eslint": "^6.1.0",
+        "eslint-config-google": "^0.13.0",
+        "eslint-config-standard": "^13.0.1",
+        "eslint-plugin-class-property": "^1.1.0",
+        "eslint-plugin-import": "^2.18.2",
+        "eslint-plugin-jest": "^22.14.1",
+        "eslint-plugin-node": "^9.1.0",
+        "eslint-plugin-promise": "^4.2.1",
+        "eslint-plugin-standard": "^4.0.0",
+        "ts-jest": "^24.0.2",
+        "typescript": "^3.5.3"
     },
     "dependencies": {
-        "write-file-p": "^1.0.7"
+        "axios": "^0.19.0",
+        "https": "^1.0.0",
+        "jest": "^24.8.0",
+        "jest-html-reporter": "^2.5.0",
+        "jest-image-snapshot": "^2.9.0",
+        "jest-junit": "^6.4.0",
+        "lighthouse": "^5.2.0",
+        "lodash": "^4.17.15",
+        "mkdirp": "^0.5.1",
+        "node-datetime": "^2.1.2",
+        "pdf-poppler": "^0.2.1",
+        "pixelmatch": "^5.0.2",
+        "puppeteer": "^1.19.0",
+        "rimraf": "^3.0.0",
+        "stack-trace": "0.0.10",
+        "write-file-p": "^1.0.7",
+        "xml2js": "^0.4.19"
     }
 }

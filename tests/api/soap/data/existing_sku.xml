@@ -1,0 +1,16 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://schemas.xmlsoap.org/ws/2002/07/secext" xmlns:ser="http://service.soap.xxpha.ru/">
+  <soapenv:Header>
+    <sec:Security>
+      <sec:UsernameToken>
+        <sec:Username></sec:Username>
+        <sec:Password></sec:Password>
+      </sec:UsernameToken>
+    </sec:Security>
+  </soapenv:Header>
+  <soapenv:Body>
+    <ser:addProduct>
+      <product>
+      </product>
+    </ser:addProduct>
+  </soapenv:Body>
+</soapenv:Envelope>

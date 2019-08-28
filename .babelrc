@@ -1,8 +1,33 @@
 {
-    "presets": ["@babel/preset-env"],
+    "presets": [
+        "@babel/preset-env",
+        "@babel/typescript"
+    ],
     "env": {
         "test": {
-            "plugins": ["@babel/plugin-transform-runtime"]
+            "plugins": [
+                "@babel/plugin-transform-runtime",
+                "@babel/plugin-proposal-class-properties",
+                "@babel/proposal-object-rest-spread",
+                ["module-resolver", {
+                    "root": ["."],
+                    "alias": {
+                        "src": "./src",
+                        "@app": "./src/app",
+                        "@classes": "./src/app/classes",
+                        "@components": "./src/components",
+                        "@config": "./src/app/config",
+                        "@const": "./src/app/const",
+                        "@precondition": "./src/precondition",
+                        "@pages": "./src/app/classes/pages.map.ts",
+                        "@soap": "./src/app/soap/soap.ts",
+                        "@actions": "./src/app/global/actions.ts",
+                        "tests": "./tests",
+                        "result": "./result",
+                        "underscore": "lodash"
+                    }
+                }]
+            ]
         }
     }
 }

@@ -3,6 +3,8 @@
 /node_modules
 /tests
 /src
+/result
 Dockerfile
 README.md
 .dockerignore
+.eslintrc

@@ -1,43 +1,31 @@
-application for running end-to-end automated test cases using puppeteer, jest, es6, docker
+#### Application for running api or end-to-end automated tests in jenkins using puppeteer, jest, docker
 
-# 1. build or pull image
+## build or pull image
 ```bash
 docker build -t image-e2e-tests .
-docker pull mhuretski/puppet-jest-es6:first
+docker pull mhuretski/puppet-jest-es6
 ```
-# 2. docker start
-## 2.1. windows
-set windows variables
-```bash
-SET RESULT_FOLDER=result & SET TEST_FOLDER=tests & SET ABS_PATH=%cd%
-```
-create folders if not exist
-```bash
-mkdir %RESULT_FOLDER% & mkdir %TEST_FOLDER%
-```
-## 2.2. linux
-%variable% - use same variables as for windows but with linux syntax 
+## start in jenkins
+### 1. Create pipeline
+### 2. Specify repository from SCM
+### 3. Run job
 
-## 2.3. create 2 containers
+## start in nodejs locally
 ```bash
-docker create --name="e2e-tests-container" -v "%ABS_PATH%\%TEST_FOLDER%":"/app/%TEST_FOLDER%/" -v "%ABS_PATH%\%RESULT_FOLDER%":"/app/%RESULT_FOLDER%/" -v "%ABS_PATH%\src":/app/src/ image-e2e-tests npm test -exp=%RESULT_FOLDER%
-docker create --name="debug-e2e-tests-container" -v "%ABS_PATH%\%TEST_FOLDER%":"/app/%TEST_FOLDER%/" -v "%ABS_PATH%\%RESULT_FOLDER%":"/app/%RESULT_FOLDER%/" -v "%ABS_PATH%\src":/app/src/ image-e2e-tests npm test -exp=%RESULT_FOLDER% --debug
+npm test --ENV_TO_CHECK=<LOCAL> --BUILD_NUMBER=<BUILD_NUMBER> <SPEC> --CHECK=<UI> --SCREENSHOT=<SCREENSHOT> --debug
+<LOCAL> - local environment
+<BUILD_NUMBER> - specifies folder for output
+<SPEC> - specifies filename pattern to run
+<UI> - specifies flag how to check
+<SCREENSHOT> - specifies whether to make screenshots
+--debug - run non-headless
 ```
-## 2.4. run container
+##### Example
 ```bash
-docker start e2e-tests-container
-docker start debug-e2e-tests-container
+npm test --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=100 spec --CHECK=UI --debug --SCREENSHOT=true
 ```
 
-
-# alternative start in nodejs without docker
-#### 1. pull dependencies
-```bash
-npm i
+##### IDE scope setup pattern:
+```bash 
+file:tests//*&&(file:*ui.ts||file:*spec.ts||file:*api.ts||file:*soap.ts||file:*rest.ts||file:*perf.ts)
 ```
-#### 2. run
-```bash
-npm test -exp=result
-npm test -exp=result --debug
-```
-

@@ -1,0 +1,37 @@
+{
+    "compilerOptions": {
+        // Target latest version of ECMAScript.
+        "target": "esnext",
+        // Process & infer types from .js files.
+        "allowJs": true,
+        // Don't emit; allow Babel to transform files.
+        "noEmit": true,
+        // Enable strictest settings like strictNullChecks & noImplicitAny.
+        "strict": true,
+        // Import non-ES modules as default imports.
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "paths": {
+            "src/*": ["src/*"],
+            "@app/*": ["src/app/*"],
+            "@classes/*": ["src/app/classes/*"],
+            "@components/*": ["src/components/*"],
+            "@config/*": ["src/app/config/*"],
+            "@const/*": ["src/app/const/*"],
+            "@precondition/*": ["src/precondition/*"],
+            "@pages": ["src/app/classes/pages.map.ts"],
+            "@soap": ["src/app/soap/soap.ts"],
+            "@actions": ["src/app/global/actions.ts"],
+            "tests/*": ["tests/*"],
+            "result/*": ["result/*"]
+        }
+    },
+    "include": [
+        "src/**/*",
+        "tests/**/*"
+    ],
+    "exclude":[
+        "node_modules"
+    ]
+}
