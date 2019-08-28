@@ -4,7 +4,7 @@
     "description": "End to End, API, Front performance tests",
     "main": "index.js",
     "jest": {
-        "testRegex": "/tests\/.*(api|ui|soap|spec|rest|perf)\\.[jt]sx?$",
+        "testRegex": "/tests/.*(api|ui|soap|spec|rest|perf)\\.[jt]sx?$",
         "setupFilesAfterEnv": [
             "<rootDir>/src/app/config/jest.settings.ts"
         ],
@@ -66,6 +66,7 @@
         "eslint-plugin-node": "^9.1.0",
         "eslint-plugin-promise": "^4.2.1",
         "eslint-plugin-standard": "^4.0.0",
+        "eslint-utils": "^1.4.2",
         "ts-jest": "^24.0.2",
         "typescript": "^3.5.3"
     },
