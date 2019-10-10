@@ -10,9 +10,9 @@ import HomePage from '@components/page/home.page'
 import ResetPasswordPage from '@components/page/reset.password.page'
 import AccountPage from '@components/page/account.page'
 import LoginModal from '@components/modal/login.modal'
-import DynAdmin from '@components/atg/dynadmin.page'
-import AlertMessage from '@components/message/alert.message'
-import PersonalManagerModal from '@components/modal/common/personal.manager.modal'
+import Alert from '@components/message/alert.message'
+import PersonalManagerModal
+  from '@components/modal/common/personal.manager.modal'
 import BaseModal from '@components/modal/common/base.modal'
 import ProductLandingPage from '@components/page/listing/product.landing.page'
 import Basket from '@components/page/basket.page'
@@ -20,12 +20,19 @@ import ProductDetailsPage from '@components/page/product.details.page'
 import SearchPage from '@components/page/listing/search.page'
 import SearchModal from '@components/modal/search.modal'
 import Breadcrumbs from '@components/shared/breadcrumbs'
+import ToastModal from '@components/modal/toast.modal'
+import OrderRepository from '@components/atg/dynadmin/repository/order'
+import GoogleEmail from '@components/shared/email'
+import ProfileAdapterRepository
+  from '@components/atg/dynadmin/repository/profile.adaptory'
 
 interface PageParent {
   [name: string]: Page,
 }
 
 export interface PagesMap {
+  googleEmail: GoogleEmail,
+  toastModal: ToastModal,
   basket: Basket,
   searchPage: SearchPage,
   searchModal: SearchModal,
@@ -38,18 +45,21 @@ export interface PagesMap {
   resetPasswordPage: ResetPasswordPage,
   footer: Footer,
   header: Header,
-  dynAdmin: DynAdmin,
+  profileAdapterRepository: ProfileAdapterRepository,
+  orderRepository: OrderRepository,
   coverage: Coverage,
   performance: Performance,
   throttling: Throttling,
   baseModal: BaseModal,
   checker: Checker,
-  alertMessage: AlertMessage,
+  alert: Alert,
   breadcrumbs: Breadcrumbs,
   default: Page
 }
 
 const pageObjects: PagesMap & PageParent = {
+  googleEmail: new GoogleEmail(),
+  toastModal: new ToastModal(),
   basket: new Basket(),
   searchPage: new SearchPage(),
   searchModal: new SearchModal(),
@@ -62,13 +72,14 @@ const pageObjects: PagesMap & PageParent = {
   resetPasswordPage: new ResetPasswordPage(),
   footer: new Footer(),
   header: new Header(),
-  dynAdmin: new DynAdmin(),
+  profileAdapterRepository: new ProfileAdapterRepository(),
+  orderRepository: new OrderRepository(),
   coverage: new Coverage(),
   performance: new Performance(),
   throttling: new Throttling(),
   baseModal: new BaseModal(),
   checker: new Checker(),
-  alertMessage: new AlertMessage(),
+  alert: new Alert(),
   breadcrumbs: new Breadcrumbs(),
   default: new Page(),
 }

@@ -1,5 +1,5 @@
 'use strict'
-import AbstractContentObject from '@classes/util/abstract.content.object'
+import Rest from '@classes/util/rest'
 
 const container = '#breadcrumbsId'
 
@@ -8,7 +8,7 @@ const selectors = {
   item: `${container} li`,
 }
 
-export default class Breadcrumbs extends AbstractContentObject {
+export default class Breadcrumbs extends Rest {
   static getSelectors = () => selectors;
 
   async clickOnCrumb(position = 0) {

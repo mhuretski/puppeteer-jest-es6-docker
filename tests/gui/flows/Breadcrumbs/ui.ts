@@ -3,8 +3,9 @@ import pages from '@pages'
 import { FunctionWithTestName, multiPack, ui } from '@actions'
 import checkWithLogin from '@precondition/guest.and.logged.in'
 import BreadcrumbsSelectors from '@components/shared/breadcrumbs'
-import { defaultPDPPath } from 'src/components/shared/paths'
+import { defaultPDPPath } from '@components/shared/util/paths'
 
+const user = undefined
 const breadcrumbs = BreadcrumbsSelectors.getSelectors()
 
 multiPack('Breadcrumbs', () => {
@@ -55,5 +56,5 @@ multiPack('Breadcrumbs', () => {
     })
   }
 
-  checkWithLogin(pages, execute)
+  checkWithLogin(pages, user, execute)
 })

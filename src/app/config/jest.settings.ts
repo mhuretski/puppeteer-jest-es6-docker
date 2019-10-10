@@ -23,6 +23,7 @@ beforeAll(async () => {
     case TEST_LAUNCH:
       expect.extend({ toMatchImageSnapshot })
       browser = await puppeteer.launch(puppetProps)
+      // console.log(`LOG Browser exists: ${browser !== undefined}`)
       break
     default:
     // jasmine can't throw exception from beforeAll

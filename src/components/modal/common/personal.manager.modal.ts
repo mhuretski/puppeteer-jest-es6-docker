@@ -10,7 +10,7 @@ const selectors = {
 }
 
 export default class PersonalManagerModal extends BaseModal {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 
   async passFlow(text = 'test') {
     await super.type(selectors.inputField, text)

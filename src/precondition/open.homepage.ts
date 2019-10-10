@@ -1,17 +1,18 @@
 'use strict'
 import { PagesMap } from '@classes/pages.map'
-import { ui } from '@actions'
+import { test } from '@actions'
 import { MAIN_PAGE } from '@const/properties/constants'
 
-export let isMobileDevice: boolean
-
-const openHomepage = (po: PagesMap, path = MAIN_PAGE): void => {
-  ui('open homepage', async () => {
-    await po.homePage.open(path)
-    isMobileDevice = await po.default.isMobile()
-    const result = await po.header.checkLogoExists()
+export const openHomepageExecute =
+  async (pages: PagesMap, path = MAIN_PAGE) => {
+    await pages.homePage.open(path)
+    const result = await pages.header.checkLogoExists()
     expect(result).toBeTruthy()
-    return true
+  }
+
+const openHomepage = (pages: PagesMap, path = MAIN_PAGE): void => {
+  test('open homepage', async () => {
+    await openHomepageExecute(pages, path)
   })
 }
 

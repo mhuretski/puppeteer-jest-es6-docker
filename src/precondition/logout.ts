@@ -1,13 +1,17 @@
 'use strict'
 import { PagesMap } from '@classes/pages.map'
-import { ui } from '@actions'
+import { test } from '@actions'
 
-const logout = (po: PagesMap) => {
-  ui('logout', async () => {
-    const Header = po.header
-    await Header.expandAccountMenu()
-    await Header.clickLogout()
-    return true
+export const logoutExecute = async (pages: PagesMap) => {
+  const Header = pages.header
+  await Header.expandAccountMenu()
+  await Header.clickLogout()
+  await Header.waitForSpinnerToDisappear()
+}
+
+const logout = (pages: PagesMap) => {
+  test('logout', async () => {
+    await logoutExecute(pages)
   })
 }
 

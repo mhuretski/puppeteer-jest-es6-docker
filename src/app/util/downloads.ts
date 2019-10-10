@@ -1,19 +1,29 @@
 'use strict'
 import { buildSpecificTempDir } from '@const/global/paths'
-import { clearDir, removeFile, renameFile } from './writer'
+import {
+  clearDir,
+  createDirIfNotExist,
+  exists,
+  removeFile,
+  renameFile,
+} from './writer'
 import path from 'path'
-// @ts-ignore
-import pdf from 'pdf-poppler'
+
+const PDFImage = require('pdf-image').PDFImage
 
 export const defaultFileName = '1'
 
 export const clearDownloadFolder =
   async (pathToFolder = buildSpecificTempDir) => {
-    const lastChar = pathToFolder.charAt(pathToFolder.length - 1)
-    if (lastChar !== '*') {
-      pathToFolder = path.join(pathToFolder, '*')
+    if (exists(pathToFolder)) {
+      const lastChar = pathToFolder.charAt(pathToFolder.length - 1)
+      if (lastChar !== '*') {
+        pathToFolder = path.join(pathToFolder, '*')
+      }
+      await clearDir(pathToFolder)
+    } else {
+      createDirIfNotExist(pathToFolder)
     }
-    await clearDir(pathToFolder)
   }
 
 export const renameDownloadedFile =
@@ -31,14 +41,14 @@ export const renameDownloadedFile =
 export const convertPDFToJPG = async (fullPath: string,
   fileName = defaultFileName) => {
   const dirPath = path.dirname(fullPath)
-  const opts = {
-    format: 'jpeg',
-    out_dir: dirPath,
-    out_prefix: fileName,
-    page: null,
-  }
 
-  await pdf.convert(fullPath, opts)
+  const pdfImage = new PDFImage(path.join(dirPath, fileName), {
+    graphicsMagick: true,
+  })
+  await pdfImage.convertPage(0).catch((err: any) => {
+    console.log(err)
+  })
+
   removeFile(fullPath)
-  return path.join(dirPath, `${fileName}-1.jpg`)
+  return path.join(dirPath, `${fileName}-0.png`)
 }

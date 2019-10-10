@@ -1,10 +1,11 @@
 'use strict'
 import Page from './page'
-import { spinner } from 'src/components/shared/constant'
+import { spinnerS } from '@components/shared/util/constant'
 import {
   defaultAnimationWaitTimer,
   defaultDownloadWaitTimer,
   defaultImagesWaitTimer,
+  defaultResponseWaitTimer,
   defaultSpinnerPresenceTimer,
   defaultSpinnerWaitTimer,
   defaultWaitTimer,
@@ -12,6 +13,7 @@ import {
 import { waitToBeExceptionMessage } from '@const/global/error.messages'
 import { buildSpecificTempDir } from '@const/global/paths'
 import { readDir } from 'src/app/util/writer'
+import { LoadEvent, Response } from 'puppeteer'
 
 
 export default class Waiter extends Page {
@@ -19,25 +21,39 @@ export default class Waiter extends Page {
     await new Promise(resolve => setTimeout(resolve, time))
   }
 
+  async waitInBrowser(time = defaultWaitTimer) {
+    return this._page.evaluate(`(async (time) => {
+      await new Promise(resolve => setTimeout(resolve, time))
+    })(${time})`, time)
+  }
+
   async waitForFileToDownload(downloadPath = buildSpecificTempDir,
           timeout = defaultDownloadWaitTimer) {
     let filename
-    while (!filename || filename.endsWith('.crdownload')) {
+    const times = 5
+    for (let i = 0; i < times; i++) {
+      if (!filename) {
+        filename = readDir(downloadPath)[0]
+        await this.waitInNodeApp(timeout)
+      } else {
+        break
+      }
+    }
+    while (filename && filename.endsWith('.crdownload')) {
       filename = readDir(downloadPath)[0]
-      // eslint-disable-next-line no-await-in-loop
       await this.waitInNodeApp(timeout)
     }
+    if (!filename) throw new Error(`File not loaded to ${downloadPath} within ${timeout * times} milliseconds.`)
     return filename
   }
 
   async waitForAnimation() {
-    return new Promise(
-      resolve => setTimeout(resolve, defaultAnimationWaitTimer))
+    await this.waitInNodeApp(defaultAnimationWaitTimer)
   }
 
   async waitForSpinnerToDisappear(
           presenceTimeout = defaultSpinnerPresenceTimer) {
-    await this.waitElementToDisappear(spinner, presenceTimeout)
+    await this.waitElementToDisappear(spinnerS, presenceTimeout)
   }
 
   async waitElementPresence(element: string,
@@ -49,17 +65,22 @@ export default class Waiter extends Page {
   }
 
   async waitElementToDisappear(element: string,
-          presenceTimeout = defaultSpinnerPresenceTimer) {
+          presenceTimeout = defaultSpinnerPresenceTimer,
+          absenceTimeout = defaultSpinnerWaitTimer) {
     try {
       await this.waitElementPresence(element, presenceTimeout)
     } catch (e) {
       // Expected
     }
-    await this.waitElementAbsence(element, defaultSpinnerWaitTimer)
+    try {
+      await this.waitElementAbsence(element, absenceTimeout)
+    } catch (e) {
+      throw new Error(`Waiting for "${element}" exceeded timeout ${absenceTimeout} milliseconds.`)
+    }
   }
 
   async waitElementAbsence(element: string, timeout = defaultSpinnerWaitTimer) {
-    await this._page.waitFor(
+    return this._page.waitFor(
       (selector: string) => !document.querySelector(selector),
       { timeout: timeout },
       element)
@@ -72,8 +93,12 @@ export default class Waiter extends Page {
   }
 
   async waitFor(selector: string, timeout = defaultWaitTimer) {
-    await this._page.waitFor(selector, { timeout: timeout })
+    await this.waitForElement(selector, timeout)
     return true
+  }
+
+  async waitForElement(selector: string, timeout = defaultWaitTimer) {
+    return this._page.waitFor(selector, { timeout: timeout })
   }
 
   async waitToBeInvisible(selector: string,
@@ -102,7 +127,6 @@ export default class Waiter extends Page {
         throw new Error(
           waitToBeExceptionMessage(selector, timeout, expectedValue))
       }
-      // eslint-disable-next-line no-await-in-loop
       const result = await checkFunction.call(this, selector)
       if (result === expectedValue) return
     }
@@ -113,8 +137,64 @@ export default class Waiter extends Page {
     return this.isVisible(selector)
   }
 
+  async waitForTextToBe(text: string, selector: string,
+          timeout = defaultWaitTimer) {
+    await this._page.waitForFunction(
+      (selector, text) =>
+        document.querySelector(selector).innerText.includes(text),
+      { timeout: timeout },
+      selector, text)
+  }
+
+  async withNavigationWait(...executables: Array<Promise<any>>) {
+    await Promise.all([executables, [this.waitForNavigation()]])
+  }
+
+  async waitForNavigation(loadEvent?: LoadEvent,
+          timeout = defaultSpinnerWaitTimer) {
+    await this._page.waitForNavigation({
+      waitUntil: loadEvent,
+      timeout: timeout,
+    })
+  }
+
+  async waitForRequestURLToContain(text: string, timeout = defaultWaitTimer) {
+    return this._page.waitForRequest(request =>
+      request.url().includes(text),
+    { timeout: timeout })
+  }
+
+  async waitForResponseURLToContain(text: string,
+          timeout = defaultResponseWaitTimer): Promise<Response> {
+    return this._page.waitForResponse(response =>
+      response.url().includes(text),
+    { timeout: timeout })
+  }
+
+  async isInvisible(selector: string): Promise<boolean> {
+    return !(await this.isVisible(selector))
+  }
+
   async isVisible(selector: string): Promise<boolean> {
     return this._page.evaluate(({ selector }) => {
+      const existsAtPosition =
+        (position: { x: number, y: number }) => {
+          let pointContainer: any =
+            document.elementFromPoint(position.x, position.y)
+          do {
+            if (pointContainer === elem) {
+              return true
+            }
+            pointContainer = pointContainer.parentNode
+          } while (pointContainer)
+        }
+      const positionOffsetPercent = (x: number, y: number) => {
+        return {
+          x: elemBounds.x + elemOffsets.x * x,
+          y: elemBounds.y + elemOffsets.y * y,
+        }
+      }
+
       const elem: HTMLElement = document.querySelector(selector)
       if (!(elem instanceof Element)) {
         return false
@@ -136,10 +216,15 @@ export default class Waiter extends Page {
         elem.getBoundingClientRect().width === 0) {
         return false
       }
-      const elemCenter = {
-        x: elem.getBoundingClientRect().left + elem.offsetWidth / 2,
-        y: elem.getBoundingClientRect().top + elem.offsetHeight / 2,
+      const elemBounds = {
+        x: elem.getBoundingClientRect().left,
+        y: elem.getBoundingClientRect().top,
       }
+      const elemOffsets = {
+        x: elem.offsetWidth,
+        y: elem.offsetHeight,
+      }
+      const elemCenter = positionOffsetPercent(0.5, 0.5)
       if (elemCenter.x < 0) {
         return false
       }
@@ -154,16 +239,12 @@ export default class Waiter extends Page {
         window.innerHeight)) {
         return false
       }
-      let pointContainer =
-        document.elementFromPoint(elemCenter.x, elemCenter.y)
-      do {
-        if (pointContainer === elem) {
-          return true
-        }
-        // @ts-ignore
-        const { parentNode } = pointContainer
-        pointContainer = parentNode
-      } while (pointContainer)
+      let exists = existsAtPosition(elemCenter)
+      if (exists) return exists
+      exists = existsAtPosition(positionOffsetPercent(0.75, 0.75))
+      if (exists) return exists
+      exists = existsAtPosition(positionOffsetPercent(0.25, 0.25))
+      if (exists) return exists
       return false
     }, { selector })
   }

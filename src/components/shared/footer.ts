@@ -1,8 +1,6 @@
 'use strict'
-import AbstractContentObject from '@classes/util/abstract.content.object'
-import {
-  defaultLoginValue as testEmail,
-} from '@const/properties/constants'
+import { defaultLoginValue as testEmail } from '@const/properties/constants'
+import Rest from '@classes/util/rest'
 
 const selectors = {
   container: '#footerContainerId',
@@ -21,7 +19,7 @@ const selectors = {
   footerSubscriptionStateMessage: '#footerSubscriptionStateMessage',
 }
 
-export default class Footer extends AbstractContentObject {
+export default class Footer extends Rest {
   static getSelectors = () => selectors;
 
   async typeTestEmail() {

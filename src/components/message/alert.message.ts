@@ -1,20 +1,32 @@
 'use strict'
-import AbstractContentObject from '@classes/util/abstract.content.object'
+import Rest from '@classes/util/rest'
+
+const container = '#alertType'
 
 const selectors = {
-  type: '#alertType',
+  type: {
+    container: container,
+    success: `${container}.success`,
+    info: `${container}.info`,
+  },
   message: '#alertMessage',
-  msgCloseBtn: '#alertMessageClose',
+  close: '#alertMessageClose',
 }
 
-export default class Alert extends AbstractContentObject {
-  static getSelectors = () => selectors;
+export default class Alert extends Rest {
+  static getSelectors = () => selectors
 
-  async getAlertText() {
-    // TODO
+  async checkSuccessAlertPresence() {
+    await super.waitFor(selectors.type.success)
+    return selectors.type.success
   }
 
-  async getAlertColor() {
-    // TODO
+  async getAlertText() {
+    return super.getText(selectors.message)
+  }
+
+  async closeAlert() {
+    await super.click(selectors.close)
+    await super.waitElementAbsence(selectors.type.container)
   }
 }

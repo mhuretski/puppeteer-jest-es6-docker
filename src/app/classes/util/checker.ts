@@ -2,8 +2,9 @@
 import Waiter from './waiter'
 import { screenExpectOption } from '@config/screenshot.settings'
 import { defaultAnimationWaitTimer, defaultWaitTimer } from '@const/global/timers'
-import { pageContainer } from '@components/shared/constant'
+import { pageContainerS } from '@components/shared/util/constant'
 import { SCREENSHOT } from '@const/global/flags'
+import { itemOutOfBoundExceptionMessage } from '@const/global/error.messages'
 
 export default class Checker extends Waiter {
   it(args: any) {
@@ -15,23 +16,27 @@ export default class Checker extends Waiter {
     return expect(val)
   }
 
-  async screenshot(selector = pageContainer) {
+  async screenshot(selector = pageContainerS, position = 0) {
     if (SCREENSHOT) {
       await super.waitForSpinnerToDisappear()
       await super.waitForImages()
-      const screenshot = await this._screenshotElement(selector)
+      const screenshot = await this._screenshotElement(selector, position)
       // @ts-ignore
       expect(screenshot).toMatchImageSnapshot(screenExpectOption)
       return true
     }
   }
 
-  async _screenshotElement(selector: string | undefined) {
+  async _screenshotElement(selector: string | undefined, position = 0) {
     let screen
     if (selector) {
       await super.waitFor(selector)
-      const elem = await this._page.$(selector)
-      if (elem) screen = await elem.screenshot()
+      const elements = await this._page.$$(selector)
+      if (position >= elements.length) {
+        throw new Error(
+          itemOutOfBoundExceptionMessage(selector, position, elements.length))
+      }
+      screen = await elements[position].screenshot()
     } else {
       screen = this._page.screenshot()
     }
@@ -39,26 +44,44 @@ export default class Checker extends Waiter {
   }
 
   async toBeGreaterThan(
-          value: string | number | undefined,
-          than: number,
-          screenshot = false) {
-    const condition = (value: number, than: number) => value > than
-    return this._checkCondition(condition, value, than, screenshot)
+          value: string | number,
+          expected: number,
+          screenshot = false,
+          selector?: string) {
+    const condition = (value: number, expected: number) =>
+      expect(value).toBeGreaterThan(expected)
+    return this._checkCondition(condition,
+      value, expected, screenshot, selector)
   }
 
   async toBeGreaterThanOrEqual(
           value: string | number | undefined,
-          than: number,
-          screenshot = false) {
-    const condition = (value: number, than: number) => value >= than
-    return this._checkCondition(condition, value, than, screenshot)
+          expected: number,
+          screenshot = false,
+          selector?: string) {
+    const condition = (value: number, expected: number) =>
+      expect(value).toBeGreaterThanOrEqual(expected)
+    return this._checkCondition(condition,
+      value, expected, screenshot, selector)
+  }
+
+  async toEqual(
+          value: string | number | undefined,
+          expected: number,
+          screenshot = false,
+          selector?: string) {
+    const condition = (value: number, than: number) =>
+      expect(value).toEqual(than)
+    return this._checkCondition(condition,
+      value, expected, screenshot, selector)
   }
 
   async _checkCondition(
           condition: Function,
           value: string | number | undefined,
-          than: number,
-          screenshot = false) {
+          expected: number,
+          screenshot = false,
+          selector?: string) {
     switch (typeof value) {
       case 'number':
         break
@@ -69,12 +92,8 @@ export default class Checker extends Waiter {
         throw new Error()
     }
 
-    const result = condition(value, than)
-    screenshot
-      ? (await this.its(value)).toBeGreaterThan(than)
-      : this.it(value).toBeGreaterThan(than)
-    expect(result).toBeTruthy()
-    return result
+    if (screenshot) await this.screenshot(selector)
+    return condition(value, expected)
   }
 
   async textToBe(
@@ -96,12 +115,11 @@ export default class Checker extends Waiter {
 
   async toBeDefined(
           selector: string,
-          timeout = defaultWaitTimer,
-          screenshot = true) {
+          screenshot = true,
+          timeout = defaultWaitTimer,) {
     const isDefined = async () => {
       try {
-        await super.waitFor(selector, timeout)
-        return true
+        return await super.waitFor(selector, timeout)
       } catch (e) {
         return false
       }

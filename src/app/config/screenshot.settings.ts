@@ -5,7 +5,7 @@ import { configureToMatchImageSnapshot } from 'jest-image-snapshot'
 import { buildSpecificDiffDir } from '@const/global/paths'
 
 const customConfig = {
-  threshold: 0.03,
+  threshold: 0.3,
 }
 
 // noinspection JSUnusedLocalSymbols
@@ -30,8 +30,8 @@ export const toMatchImageSnapshot: jest.CustomMatcher =
     // customSnapshotsDir: snapshotsDir,
     customDiffDir: buildSpecificDiffDir,
     diffDirection: 'horizontal',
-    noColors: true,
-    failureThreshold: 0.03,
+    noColors: false,
+    failureThreshold: 1,
     failureThresholdType: 'percent',
     updatePassedSnapshot: false,
   })

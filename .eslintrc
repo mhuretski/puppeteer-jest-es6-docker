@@ -4,7 +4,7 @@
         "eslint:recommended",
         "google"
     ],
-    "parser": "babel-eslint",
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 2018,
         "sourceType": "module"
@@ -17,8 +17,12 @@
     },
     "plugins": [
         "jest",
-        "class-property"
+        "class-property",
+        "@typescript-eslint"
     ],
+    "globals": {
+        "reservedTestUsers": true
+    },
     "rules": {
         "max-len": [
             1,
@@ -50,9 +54,9 @@
             "1tbs"
         ],
         "no-loop-func": "error",
-        "no-await-in-loop": "error",
+        "no-await-in-loop": 0,
         "no-useless-call": "error",
-        "no-unused-vars": 1,
+        "no-unused-vars": 0,
         "no-trailing-spaces": 0,
         "padded-blocks": [
             "error",

@@ -1,7 +1,6 @@
 'use strict'
 import Listing from '@components/page/listing/listing'
-import { MAIN_PAGE } from '@const/properties/constants'
-import { defaultSpinnerPresenceTimerOnFirstPageLoad } from '@const/global/timers'
+import { logoS } from '@components/shared/util/constant'
 
 const selectors = {
   autoCorrect: {
@@ -17,8 +16,7 @@ export default class SearchPage extends Listing {
     await super.click(selectors.autoCorrect.searchByOriginalTerms)
   }
 
-  async open(path = `${MAIN_PAGE}search`,
-          spinnerPresenceTimeout = defaultSpinnerPresenceTimerOnFirstPageLoad) {
-    await super.open(path, spinnerPresenceTimeout)
+  async openThis() {
+    await super.openRelative('search', logoS)
   }
 }

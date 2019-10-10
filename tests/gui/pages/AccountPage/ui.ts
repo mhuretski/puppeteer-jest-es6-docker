@@ -4,6 +4,7 @@ import { multiPack, ui } from '@actions'
 import login from '@precondition/login'
 import AccountPageObject from '@components/page/account.page'
 
+const user = undefined
 const accountSelectors = AccountPageObject.getSelectors()
 
 multiPack('Account page', () => {
@@ -11,7 +12,7 @@ multiPack('Account page', () => {
   const Header = pages.header
   const AccountPage = pages.accountPage
 
-  login(pages)
+  login(pages, user)
   ui('open account page', async () => Header.openAccountPage())
   ui('profile container is shown', async () =>
     AccountPage.scrollTo(accountSelectors.profileCardContainer))

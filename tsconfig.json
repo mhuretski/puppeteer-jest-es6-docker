@@ -23,6 +23,7 @@
             "@pages": ["src/app/classes/pages.map.ts"],
             "@soap": ["src/app/soap/soap.ts"],
             "@actions": ["src/app/global/actions.ts"],
+            "@interfaces": ["interfaces.d.ts"],
             "tests/*": ["tests/*"],
             "result/*": ["result/*"]
         }

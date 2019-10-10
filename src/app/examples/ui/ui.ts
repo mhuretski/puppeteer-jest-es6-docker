@@ -12,7 +12,7 @@ singlePack('Package name', () => {
   ui('user is logged in', async () => {
     await pages.loginModal.typeLogin()
     await pages.loginModal.typePassword()
-    await pages.loginModal.submit()
+    await pages.loginModal.submitLogin()
   })
 })
 
@@ -26,6 +26,6 @@ multiPack('Login and Logout flow', () => {
   ui('user is logged in', async () => {
     await pages.loginModal.typeLogin()
     await pages.loginModal.typePassword()
-    await pages.loginModal.submit()
+    await pages.loginModal.submitLogin()
   })
 })

@@ -6,6 +6,7 @@ import HomePage from '@components/page/home.page'
 import { multiPack, ui } from '@actions'
 import openHomepage from '@precondition/open.homepage'
 
+const user = undefined
 const headerSelectors = Header.getSelectors()
 const FAQSelectors = HomePage.getSelectors().FAQ
 
@@ -29,7 +30,7 @@ multiPack('Personal manager', () => {
   openHomepage(pages)
   ui('absence for non-logged in user on homepage', async () =>
     FAQSelectors.container)
-  login(pages)
+  login(pages, user)
   ui('presence for logged in user on homepage', async () =>
     FAQSelectors.container)
   ui('modal invisibility in header', async () => {})

@@ -2,15 +2,17 @@
 #RUN TESTS
 if [[ "$CHECK" =~ ^(UI|API|REST|SOAP|SPEC|PERF|TEST)$ ]]; then
   if [[ "$CHECK" == "TEST" ]]; then
-    START_FLAG="^(?!.*?PERF\.[jt]sx?).*$"
+    START_FLAG="TEST"
   elif [[ "$CHECK" == "API" ]]; then
-    START_FLAG="(API|REST|SOAP)\.[jt]sx?$"
+    START_FLAG="(API|REST|SOAP)\.[jt]s"
   else
-    START_FLAG="($CHECK)\.[jt]sx?$"
+    START_FLAG="($CHECK)\.[jt]s"
   fi
   echo "started with pattern ${START_FLAG}"
 
   TESTS_CONTAINER="e2e-tests-pipeline-${ENV_TO_CHECK}"
+
+  docker ps -q --filter "name=${TESTS_CONTAINER}" | grep -q . && docker rm -f ${TESTS_CONTAINER}
 
   docker create --name=${TESTS_CONTAINER} \
   -v ${WORKSPACE}/result:/app/result \
@@ -21,11 +23,12 @@ if [[ "$CHECK" =~ ^(UI|API|REST|SOAP|SPEC|PERF|TEST)$ ]]; then
   mhuretski/puppet-jest-es6 \
   npm test \
   --silent \
+  --runInBand \
   --ENV_TO_CHECK=${ENV_TO_CHECK} \
   --BUILD_NUMBER=${BUILD_NUMBER} \
   ${START_FLAG} \
   --CHECK=${CHECK} \
-  --SCREENSHOT=${SCREEN}
+  --SCREENSHOT=${SCREENSHOT}
 
   time=$(date '+%Y-%m-%dT%H:%M:%S')
   docker start ${TESTS_CONTAINER}

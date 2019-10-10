@@ -1,5 +1,5 @@
 'use strict'
-import AbstractContentObject from '@classes/util/abstract.content.object'
+import Rest from '@classes/util/rest'
 
 const firstCarouselItemSelector = 'div[aria-hidden="false"]'
 
@@ -41,7 +41,7 @@ const selectors = {
   },
 }
 
-export default class HomePage extends AbstractContentObject {
+export default class HomePage extends Rest {
   static getSelectors = () => selectors;
 
   async openPersonalManagerModal() {
@@ -49,7 +49,7 @@ export default class HomePage extends AbstractContentObject {
   }
 
   async openBanner(position = 0) {
-    await super.click(selectors.banner.scrollButtons(position))
+    await super.clickPuppeteer(selectors.banner.scrollButtons(position))
     await super.clickOnPuppeteer(selectors.banner.itemButtons, position)
   }
 
@@ -80,15 +80,16 @@ export default class HomePage extends AbstractContentObject {
   }
 
   async openAllProductsPageFromRecommendation() {
-    await super.click(selectors.recommendation.allProductsLink)
+    await super.clickAndWaitEndecaContent(
+      selectors.recommendation.allProductsLink)
   }
 
   async clickOnAskAgro() {
-    await super.click(selectors.FAQ.askAgro)
+    await super.clickAndWaitEndecaContent(selectors.FAQ.askAgro)
   }
 
   async clickOnAskManager() {
-    await super.click(selectors.FAQ.askManager)
+    await super.clickAndWaitEndecaContent(selectors.FAQ.askManager)
   }
 
   async openContactUsLogged() {

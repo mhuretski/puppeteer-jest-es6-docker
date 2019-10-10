@@ -15,6 +15,7 @@ pipeline {
         string defaultValue: '', description: 'nothing if triggered manually', name: 'PARENT_GIT_PREVIOUS_COMMIT', trim: false
         string defaultValue: '', description: 'nothing if triggered manually', name: 'PARENT_GIT_COMMIT', trim: false
         booleanParam defaultValue: true, description: 'defines whether screenshot snapshots are tested', name: 'SCREENSHOT'
+        booleanParam defaultValue: false, description: 'defines whether to attach failed screenshot snapshots to email', name: 'ATTACH_SCREEN'
     }
     stages {
         stage('clear results of previous run') {
@@ -56,7 +57,7 @@ pipeline {
                             recipientsFileFolderLocation = 'DEFAULT'
                             break
                     }
-                    properties = readProperties file: "src/app/config/jenkins/site/${recipientsFileFolderLocation}/recipients.properties"
+                    properties = readProperties file: "src/app/config/jenkins/site/${recipientsFileFolderLocation.toLowerCase()}/recipients.properties"
                     def subjectFile = readProperties file: "subject_and_status.email"
                     properties.subject = subjectFile['EMAIL_SUBJECT']
                     properties.body = readFile file: "content.email"

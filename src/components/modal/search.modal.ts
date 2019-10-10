@@ -1,19 +1,46 @@
 'use strict'
-import AbstractContentObject
-  from '@classes/util/abstract.content.object'
 import { defaultAnimationWaitTimer, defaultWaitTimer } from '@const/global/timers'
+import Rest from '@classes/util/rest'
 
 const container = '#searchResultsModal'
 
 const selectors = {
   container: container,
   state: '#searchChangeState',
+  typeahead: '#typeahead',
   item: `${container} li`,
   searchInput: '#headerSearchInput',
 }
 
-export default class SearchModal extends AbstractContentObject {
-  static getSelectors = () => selectors;
+export default class SearchModal extends Rest {
+  static getSelectors = () => selectors
+
+  async listenIsOpened() {
+    await this._page.evaluate((selector, typeaheadStatusSelector) => {
+      let typeaheadStatus = document.querySelector(typeaheadStatusSelector)
+      if (!typeaheadStatus) {
+        typeaheadStatus = document.createElement('div')
+        typeaheadStatus.id = 'typeahead'
+        const body = document.querySelector('body')
+        if (body) body.appendChild(typeaheadStatus)
+        const elem = document.querySelector(selector)
+        if (elem) {
+          let lastClassName = elem.className
+          window.setInterval(function() {
+            const className = elem.className
+            if (typeaheadStatus && lastClassName !== className) {
+              lastClassName = className
+              if (className.includes('open') && className.includes('focus')) {
+                typeaheadStatus.className = 'open'
+              } else {
+                typeaheadStatus.className = 'closed'
+              }
+            }
+          }, 10)
+        }
+      }
+    }, selectors.state, selectors.typeahead)
+  }
 
   async forceFocusState(text: string, timeout = defaultWaitTimer) {
     await super.setValueToInput(selectors.searchInput, text, timeout)
@@ -21,12 +48,17 @@ export default class SearchModal extends AbstractContentObject {
     await this._page.evaluate((selector) => {
       document.querySelector(selector).className += ' open focus'
     }, selectors.state)
+    await super.waitForAnimation()
   }
 
   async countItems() {
     await super.waitForAnimation()
-    await super.waitFor(selectors.container)
-    return super.countElements(selectors.item)
+    try {
+      await super.waitFor(selectors.container)
+      return super.countElements(selectors.item)
+    } catch (e) {
+      return 0
+    }
   }
 
   async clickOnItem(position = 0, timeout = defaultAnimationWaitTimer) {

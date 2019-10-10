@@ -1,22 +1,30 @@
 'use strict'
-import { StartProperties } from './mapping'
+import { StartProperties } from '@interfaces'
 
-const PROD_SCHEME_URL = 'http://localhost:8180/dyn/admin/'
 const CONFIG: StartProperties = {
   MAIN_PAGE: 'http://localhost:3000/',
   defaultLoginValue: 'test-email@test.com',
   defaultPasswordValue: 'test-email',
   DYN_ADMIN: {
-    PROD_SCHEME_URL: PROD_SCHEME_URL,
-    username: 'username',
-    password: 'password',
-    ProfileAdapterRepository: `${PROD_SCHEME_URL}nucleus/atg/userprofiling/ProfileAdapterRepository/`,
+    PROD_SCHEME_URL: 'http://67.67.68.130:8080/dyn/admin/',
+    username: 'admin',
+    password: 'admin123',
   },
   SOAP: {
-    baseURL: 'http://localhost:8180/',
-    addProduct: 'webservice/secondExample',
-    addOrganization: 'webservice/secondExample',
+    baseURL: 'http://67.67.68.130:8180/',
+    addProduct: 'webservice/addProduct',
+    addOrganization: 'webservice/addOrganization',
   },
+  EMAIL: {
+    orderConfirmation: {
+      title: 'Оредр сделан',
+      orderIdTitle: 'Номер вашего заказа #',
+    },
+    passwordRecovery: {
+      title: 'Сброс пароля',
+    },
+  },
+  TEST_USERS: [],
 }
 
 export default CONFIG

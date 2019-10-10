@@ -1,25 +1,34 @@
 'use strict'
 import pages from '@pages'
 import Footer from '@components/shared/footer'
-import { singlePack, ui } from '@actions'
+import { singlePack, ui, test } from '@actions'
 
 const footerSelectors = Footer.getSelectors()
 
 singlePack('Footer subscription', () => {
-  ui('prepare before subscribing', async () => {
-    return pages.dynAdmin.deleteTestSubscriptionIfExists()
+  const ProfileAdapterRepository = pages.profileAdapterRepository
+  const HomePage = pages.homePage
+  const Footer = pages.footer
+
+  test('login to dyn admin', async () =>
+    ProfileAdapterRepository.open())
+  test('prepare before subscribing', async () => {
+    await ProfileAdapterRepository.openThis()
+    await ProfileAdapterRepository.deleteTestSubscriptionIfExists()
   })
-  ui('subscription section existence', async () => {
-    await pages.homePage.open()
-    return pages.checker.toBeDefined(footerSelectors.subscribeContainer)
+  test('subscription section existence', async () => {
+    await HomePage.open()
+    await HomePage.toBeDefined(footerSelectors.subscribeContainer)
   })
   ui('subscribe success front', async () => {
-    await pages.footer.typeTestEmail()
-    await pages.footer.subscribe()
+    await Footer.typeTestEmail()
+    await Footer.subscribe()
     return footerSelectors.subscribeContainer
   })
-  ui('subscription exists in system', async () => {
-    const subscriptionId = await pages.dynAdmin.getFooterSubscriptionId()
-    return pages.checker.toBeGreaterThanOrEqual(subscriptionId, 100000)
+  test('subscription exists in system', async () => {
+    const subscriptionId =
+      await ProfileAdapterRepository.getFooterSubscriptionId()
+    await ProfileAdapterRepository.toBeGreaterThanOrEqual(subscriptionId,
+      100000)
   })
 })

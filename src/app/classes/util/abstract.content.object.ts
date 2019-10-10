@@ -2,7 +2,7 @@
 import { MAIN_PAGE } from '@const/properties/constants'
 import Checker from './checker'
 import {
-  defaultSpinnerPresenceTimerOnFirstPageLoad,
+  defaultSpinnerWaitToBePresentTimer,
   defaultWaitTimer,
 } from '@const/global/timers'
 import {
@@ -10,7 +10,7 @@ import {
   itemOutOfBoundExceptionMessage,
   selectExceptionMessage,
 } from '@const/global/error.messages'
-import { ElementHandle } from 'puppeteer'
+import { DirectNavigationOptions, ElementHandle } from 'puppeteer'
 import { ENTER } from '@const/global/keyboard.keys'
 import { buildSpecificTempDir } from '@const/global/paths'
 import {
@@ -19,49 +19,27 @@ import {
   renameDownloadedFile,
 } from '@app/util/downloads'
 import { setDownloadProperties } from '@config/puppet.settings'
-
-interface ChromeHTMLElement extends Element {
-  scrollIntoViewIfNeeded(): void;
-
-  click(): void;
-}
-
-interface NodeListOf<Node> {
-  length: number;
-
-  item(index: number): Node;
-
-  forEach(
-    callbackfn: (
-      value: Node, key: number, parent: NodeListOf<Node>
-    ) => void, thisArg?: any
-  ): void;
-
-  [index: number]: Node;
-}
+import path from 'path'
+import { ChromeHTMLElement, NodeListOf } from '@interfaces'
 
 export default class AbstractContentObject extends Checker {
   async open(path = MAIN_PAGE,
-          spinnerPresenceTimeout = defaultSpinnerPresenceTimerOnFirstPageLoad
+          spinnerPresenceTimeout = defaultSpinnerWaitToBePresentTimer,
+          options: DirectNavigationOptions = { waitUntil: 'networkidle0' }
   ) {
-    await this._page.goto(path)
+    await this._page.goto(path, options)
     await super.waitForSpinnerToDisappear(spinnerPresenceTimeout)
   }
 
   async openRelative(path: string,
           selectorToCheck?: string,
-          spinnerPresenceTimeout = defaultSpinnerPresenceTimerOnFirstPageLoad,
+          spinnerPresenceTimeout = defaultSpinnerWaitToBePresentTimer,
   ) {
     const openPage = async () => {
       await this.open(`${MAIN_PAGE}${path}`, spinnerPresenceTimeout)
       if (selectorToCheck) await super.waitFor(selectorToCheck)
     }
-
-    try {
-      await openPage()
-    } catch (e) {
-      await openPage()
-    }
+    return openPage()
   }
 
   async reload() {
@@ -69,6 +47,20 @@ export default class AbstractContentObject extends Checker {
       location.reload()
     })
     await super.waitForSpinnerToDisappear()
+    await super.waitForImages()
+  }
+
+  async removeIfExist(selector: string, timeout = defaultWaitTimer):
+    Promise<void> {
+    try {
+      await super.waitFor(selector, timeout)
+      await this._page.evaluate((selector) => {
+        const elem: HTMLElement = document.querySelector(selector)
+        if (elem) elem.remove()
+      }, selector)
+    } catch (e) {
+      // assumed element didn't exist
+    }
   }
 
   async screenshotAndGoBack(selector?: string) {
@@ -85,11 +77,16 @@ export default class AbstractContentObject extends Checker {
   async goBack() {
     await this._page.evaluate(() => window.history.back())
     await super.waitForSpinnerToDisappear()
+    await super.waitForImages()
     return true
   }
 
   async goForwardPuppeteer() {
     await this._page.goForward()
+  }
+
+  isXpath(selector: string) {
+    return selector.startsWith('//')
   }
 
   async clickAndBack(selector: string,
@@ -104,12 +101,86 @@ export default class AbstractContentObject extends Checker {
     return this.clickAndBack(selector, timeout, super.screenshot)
   }
 
-  async getText(selector: string, timeout = defaultWaitTimer) {
-    await super.waitFor(selector, timeout)
-    return this._page.$eval(selector, el => el.textContent)
+  async changeElementContentTo(
+          whatIsReplaced: 'innerHTML' | 'innerText' | 'textContent',
+          selector: string,
+          replaceValue: string = '',
+          replacePattern: string = '',
+          timeout = defaultWaitTimer) {
+    const isXpath = this.isXpath(selector)
+    if (!isXpath) {
+      await super.waitFor(selector, timeout)
+    }
+
+    await this._page.evaluate((whatIsReplaced, selector, isXpath,
+            replaceValue, replacePattern) => {
+      let elem
+      if (isXpath) {
+        elem = document.evaluate(selector,
+          document,
+          null,
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+          null).singleNodeValue
+      } else {
+        elem = document.querySelector(selector)
+      }
+
+      if (elem) {
+        if (replaceValue) {
+          elem[whatIsReplaced] = replaceValue
+        } else {
+          const stringGenerator = (size: number) => new Array(size + 1).join('#')
+          if (replacePattern) {
+            elem[whatIsReplaced] = elem[whatIsReplaced].replace(
+              replacePattern, stringGenerator(replacePattern.length))
+          } else {
+            elem[whatIsReplaced] = stringGenerator(elem[whatIsReplaced].length)
+          }
+        }
+      }
+    }, whatIsReplaced, selector, isXpath, replaceValue, replacePattern)
   }
 
-  async getValue(selector: string, timeout = defaultWaitTimer) {
+  async getText(selector: string, timeout = defaultWaitTimer)
+    : Promise<string> {
+    if (this.isXpath(selector)) {
+      const elemXPath = (await this._page.$x(selector))[0]
+      return this._page.evaluate(e => e.innerText, elemXPath)
+    } else {
+      await super.waitFor(selector, timeout)
+      const result = await this._page.evaluate((selector) => {
+        const elem = document.querySelector(selector)
+        if (elem) return elem.innerText
+      }, selector)
+      return (result) || ''
+    }
+  }
+
+  async getHTML(elementOrSelector: ElementHandle | string):
+    Promise<string | undefined> {
+    let element
+    if (typeof elementOrSelector === 'string') {
+      await this.waitFor(elementOrSelector)
+      element = await this._page.$(elementOrSelector)
+    } else {
+      element = elementOrSelector
+    }
+    if (element) {
+      const htmlContent = await element.getProperty('innerHTML')
+      if (htmlContent) return htmlContent.jsonValue()
+    }
+  }
+
+  async getValue(selector: string, timeout = defaultWaitTimer):
+    Promise<string> {
+    await super.waitFor(selector, timeout)
+    return this._page.evaluate((selector) => {
+      return document.querySelector(selector).value
+    }, selector)
+  }
+
+  async getIntValue(selector: string, timeout = defaultWaitTimer):
+    Promise<number> {
     await super.waitFor(selector, timeout)
     return this._page.evaluate((selector) => {
       return parseInt(document.querySelector(selector).value)
@@ -136,8 +207,13 @@ export default class AbstractContentObject extends Checker {
   }
 
   async clickPuppeteer(selector: string, timeout = defaultWaitTimer) {
-    await super.waitFor(selector, timeout)
-    const element = await this._page.$(selector)
+    let element
+    if (this.isXpath(selector)) {
+      element = (await this._page.$x(selector)).shift()
+    } else {
+      await super.waitFor(selector, timeout)
+      element = await this._page.$(selector)
+    }
     if (element) {
       await element.click()
     } else {
@@ -146,7 +222,8 @@ export default class AbstractContentObject extends Checker {
   }
 
   /*
-   * Click without moving page to center of clicked area
+   * Click without moving page to center of clicked area.
+   * Evaluated in browser.
    */
   async click(selector: string, timeout = defaultWaitTimer) {
     await super.waitFor(selector, timeout)
@@ -161,6 +238,31 @@ export default class AbstractContentObject extends Checker {
     if (!result) {
       throw new Error(clickTimeoutExceptionMessage(selector, timeout))
     }
+  }
+
+  async clickByCoordinatesInBrowser(selector: string,
+          timeout = defaultWaitTimer) {
+    await super.waitFor(selector, timeout)
+    return this._page.evaluate((selector: string) => {
+      const simulateClick = (x: number, y: number) => {
+        const clickEvent = document.createEvent('MouseEvents')
+        clickEvent.initMouseEvent(
+          'click', true, true, window, 0,
+          0, 0, x, y, false, false,
+          false, false, 0, null
+        )
+        const elem = document.elementFromPoint(x, y)
+        if (elem) elem.dispatchEvent(clickEvent)
+      }
+
+      const elem: HTMLElement | null = document.querySelector(selector)
+      if (elem) {
+        const X = elem.getBoundingClientRect().left + elem.offsetWidth / 2
+        const Y = elem.getBoundingClientRect().top + elem.offsetHeight / 2
+        simulateClick(X, Y)
+        return true
+      }
+    }, selector)
   }
 
   async clickOn(selector: string,
@@ -252,8 +354,8 @@ export default class AbstractContentObject extends Checker {
     await super.waitFor(selector, timeout)
     const result = await this._page.evaluate(
       (selector: string, position: number) => {
-        const elements: NodeListOf<ChromeHTMLElement> | null = document
-          .querySelectorAll(selector)
+        const elements: NodeListOf<ChromeHTMLElement> | null =
+          document.querySelectorAll(selector)
         if (elements.length > position) {
           const elem = elements[position]
           if (elem) {
@@ -283,6 +385,25 @@ export default class AbstractContentObject extends Checker {
     if (!result) {
       throw new Error(clickTimeoutExceptionMessage(selector, timeout))
     }
+  }
+
+  async scrollDown() {
+    await this._page.evaluate(`(async () => {
+      await new Promise((resolve, reject) => {
+        let totalHeight = 0
+        const distance = 100
+        const timer = setInterval(() => {
+          const scrollHeight = document.body.scrollHeight
+          window.scrollBy(0, distance)
+          totalHeight += distance
+          console.log(totalHeight - scrollHeight)
+          if (totalHeight >= scrollHeight) {
+            clearInterval(timer)
+            resolve()
+          }
+        }, 100)
+      })
+    })()`)
   }
 
   async type(selector: string, text: string, timeout = defaultWaitTimer) {
@@ -352,11 +473,15 @@ export default class AbstractContentObject extends Checker {
     await this._page.keyboard.press(key)
   }
 
+  _downloadCount: number = 0
+
   async downloadFile(selector: string,
-          downloadFolder = buildSpecificTempDir,
+          downloadDirectory = buildSpecificTempDir,
           savedFileName = defaultFileName,
           convert?: (path: string, fileName?: string)
                        => Promise<string> | string) {
+    const specificIterationDir = (++this._downloadCount).toString()
+    const downloadFolder = path.join(downloadDirectory, specificIterationDir)
     await clearDownloadFolder(downloadFolder)
     await setDownloadProperties(this._page, downloadFolder)
     await this.click(selector)
@@ -369,5 +494,9 @@ export default class AbstractContentObject extends Checker {
 
   async setOfflineMode(enabled: boolean): Promise<void> {
     await this._page.setOfflineMode(enabled)
+  }
+
+  fileLinuxPathToChromePath(path: string) {
+    return `file://${path}`
   }
 }

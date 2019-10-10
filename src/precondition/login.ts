@@ -1,23 +1,34 @@
 'use strict'
 import { PagesMap } from '@classes/pages.map'
-import { ui } from '@actions'
+import { test } from '@actions'
+import { User } from '@interfaces'
+import { DEFAULT_USER } from '@const/global/users.reserve'
 
-const login = (po: PagesMap) => {
-  ui('login', async () => {
-    await po.homePage.open()
-    await po.header.openLoginModal()
-    await po.loginModal.typeLogin()
-    await po.loginModal.typePassword()
-    await po.loginModal.submit()
-    let result
-    try {
-      result = await po.header.checkLogoExists()
-    } catch (e) {
-      await po.homePage.reload()
-      result = await po.header.checkLogoExists()
-    }
-    expect(result).toBeTruthy()
-    return true
+export let orderId: string
+
+export const loginExecute = async (pages: PagesMap, user?: User) => {
+  const Header = pages.header
+  const HomePage = pages.homePage
+  const LoginModal = pages.loginModal
+
+  await HomePage.open()
+  await Header.openLoginModal()
+  if (!user) {
+    user = DEFAULT_USER
+  }
+  await LoginModal.typeLogin(user.login)
+  await LoginModal.typePassword(user.password)
+  const submitEvent: Promise<void> = LoginModal.submitLogin(user)
+  orderId = await Header.getOrderId()
+  await Promise.resolve(submitEvent)
+  await LoginModal.waitForAnimation()
+  await LoginModal.isHidden()
+  await Header.checkLogoExists()
+}
+
+const login = (pages: PagesMap, user?: User) => {
+  test('login', async () => {
+    await loginExecute(pages, user)
   })
 }
 

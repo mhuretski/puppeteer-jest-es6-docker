@@ -1,11 +1,11 @@
 'use strict'
-import AbstractContentObject from '@classes/util/abstract.content.object'
+import Rest from '@classes/util/rest'
 
 const selectors = {
   closeModalXButton: '#closeModalX',
 }
 
-export default class BaseModal extends AbstractContentObject {
+export default class BaseModal extends Rest {
   async close() {
     await super.click(selectors.closeModalXButton)
     return true

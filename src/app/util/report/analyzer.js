@@ -23,7 +23,7 @@ class Analyzer {
 
       if (latest) {
         const fileData = fs.readFileSync(
-          resolve(join(path, latest.filename))
+          resolve(join(path, latest.filename)),
         ).toString()
         return JSON.parse(fileData)
       }
@@ -36,8 +36,19 @@ class Analyzer {
       runResult.testResults.forEach(suite => {
         suite.testResults.forEach(test => {
           const foundSuite = result.find(suite => {
-            if (suite.suiteName === test.ancestorTitles[0]) {
-              return suite
+            if (suite.ancestorTitles && test.ancestorTitles) {
+              if (suite.ancestorTitles.length === 1 &&
+                  test.ancestorTitles.length === 1) {
+                if (suite.ancestorTitles[0] === test.ancestorTitles[0]) {
+                  return suite
+                }
+              } else if (suite.ancestorTitles.length > 1 &&
+                         test.ancestorTitles.length > 1) {
+                if (suite.ancestorTitles[0] === test.ancestorTitles[0] &&
+                    suite.ancestorTitles[1] === test.ancestorTitles[1]) {
+                  return suite
+                }
+              }
             }
           })
           if (foundSuite) {
@@ -47,7 +58,7 @@ class Analyzer {
             })
           } else {
             result.push({
-              suiteName: test.ancestorTitles[0],
+              ancestorTitles: test.ancestorTitles,
               tests: [{
                 title: test.title,
                 status: test.status,
@@ -70,18 +81,20 @@ class Analyzer {
             if (curTest.status === 'failed') {
               let isNewFailed = false
               previous.forEach(prevSuite => {
-                if (prevSuite.suiteName === curSuite.suiteName) {
+                const sameSuites = this._compareArrays(
+                  prevSuite.ancestorTitles, curSuite.ancestorTitles)
+                if (sameSuites) {
                   prevSuite.tests.forEach(prevTest => {
                     if (prevTest.title === curTest.title &&
-                        prevTest.status === 'passed') {
+                          prevTest.status === 'passed') {
                       isNewFailed = true
                     }
-                  }
+                  },
                   )
                 }
               })
               if (isNewFailed) {
-                result.push(`${++count}. Suite: "${curSuite.suiteName}" Test: "${curTest.title}" - new Fail!`)
+                result.push(this._reportData(curSuite, curTest, ++count))
               }
             }
           })
@@ -91,6 +104,35 @@ class Analyzer {
     }
 
     return newFailedTests()
+  }
+
+  _reportData(curSuite, curTest, count) {
+    if (curSuite.ancestorTitles.length > 1) {
+      return `${count}. Suite: "${curSuite.ancestorTitles[0]} > ${curSuite.ancestorTitles[1]}" Test: "${curTest.title}" - new Fail!`
+    } else {
+      return `${count}. Suite: "${curSuite.ancestorTitles[0]}" Test: "${curTest.title}" - new Fail!`
+    }
+  }
+
+  _compareArrays(arr1, arr2) {
+    if (!arr1 || !arr2) {
+      return false
+    }
+
+    if (arr1.length !== arr2.length) {
+      return false
+    }
+
+    for (let i = 0, l = arr1.length; i < l; i++) {
+      if (arr1[i] instanceof Array && arr2[i] instanceof Array) {
+        if (!this._compareArrays(arr1[i], arr2[i])) {
+          return false
+        }
+      } else if (arr1[i] !== arr2[i]) {
+        return false
+      }
+    }
+    return true
   }
 }
 

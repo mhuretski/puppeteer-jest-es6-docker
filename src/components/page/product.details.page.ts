@@ -1,12 +1,11 @@
 'use strict'
-import Listing from './listing/listing'
-import quantity from '@components/shared/quantity'
-import { BACKSPACE, DELETE, LEFT, RIGHT } from '@const/global/keyboard.keys'
+import quantity, { itemsToAdd } from '@components/shared/util/quantity'
 import { defaultWaitTimer } from '@const/global/timers'
 import { buildSpecificTempDir } from '@const/global/paths'
-
 import { convertPDFToJPG, defaultFileName } from '@app/util/downloads'
-import { image } from '@components/shared/constant'
+import { imageS } from '@components/shared/util/constant'
+import { AddToBasketInterface } from '@interfaces'
+import Rest from '@classes/util/rest'
 
 const cropsContainer = '#pdpCrops'
 const thumbnailContainer = '#pdpImageThumbnails'
@@ -48,6 +47,7 @@ const selectors = {
   actions: {
     addToCart: addToCartContainer,
     disabled: `${addToCartContainer} button[disabled]`,
+    enabled: '#addToBasketEnabled',
     contactUs: '#pdpContactUs',
     quantity: quantity,
   },
@@ -65,14 +65,25 @@ const selectors = {
   },
 }
 
-export default class ProductDetailsPage extends Listing {
+export default class ProductDetailsPage
+  extends Rest implements AddToBasketInterface {
   static getSelectors = () => selectors
 
-  async addToBasket(isMobile: boolean) {
-    isMobile
-      ? await super.tap(selectors.actions.addToCart)
-      : await super.clickPuppeteer(selectors.actions.addToCart)
+  async addToBasket() {
+    await super.waitFor(selectors.actions.enabled)
+    const clicked = (await super.isMobile())
+      ? super.tap(selectors.actions.addToCart)
+      : super.clickPuppeteer(selectors.actions.addToCart)
+    const isAddedResponse = super.waitAddItemToOrderResponse()
+    await super.checkResponseForErrors('Add to basket response error.', isAddedResponse)
+
+    await super.waitForElement(selectors.actions.disabled)
+    await Promise.resolve(clicked)
+  }
+
+  async waitForAddToBasketButtonAnimation() {
     await super.waitElementToDisappear(selectors.actions.disabled)
+    await super.waitFor(selectors.actions.enabled)
   }
 
   async openModal() {
@@ -81,39 +92,22 @@ export default class ProductDetailsPage extends Listing {
 
   async increase(amount = 1) {
     for (let i = 0; i < amount; i++) {
-      // eslint-disable-next-line no-await-in-loop
       await super.clickPuppeteer(selectors.actions.quantity.increase)
     }
   }
 
   async decrease(amount = 1) {
     for (let i = 0; i < amount; i++) {
-      // eslint-disable-next-line no-await-in-loop
       await super.clickPuppeteer(selectors.actions.quantity.decrease)
     }
   }
 
   async itemsToAdd(number: number) {
-    if (number >= 1 && number <= 99999) {
-      const value = number.toString()
-      await super.click(selectors.actions.quantity.input)
-      await super.pressKeyboardKey(DELETE)
-      if (value.length === 1) {
-        await super.type(selectors.actions.quantity.input, value)
-        await super.pressKeyboardKey(LEFT)
-        await super.pressKeyboardKey(BACKSPACE)
-      } else {
-        await super.type(selectors.actions.quantity.input, value[0])
-        await super.pressKeyboardKey(LEFT)
-        await super.pressKeyboardKey(BACKSPACE)
-        await super.pressKeyboardKey(RIGHT)
-        await super.type(selectors.actions.quantity.input, value.substring(1))
-      }
-    }
+    await itemsToAdd(this, number, 0, selectors.actions.quantity.input)
   }
 
   async getCurrentQuantity(timeout = defaultWaitTimer) {
-    return super.getValue(selectors.actions.quantity.input, timeout)
+    return super.getIntValue(selectors.actions.quantity.input, timeout)
   }
 
   async viewImage(position = 0, timeout = defaultWaitTimer) {
@@ -140,7 +134,7 @@ export default class ProductDetailsPage extends Listing {
       downloadFolder,
       fileName,
       convert)
-    await super.open(path)
-    return image
+    await super.open(super.fileLinuxPathToChromePath(path))
+    return imageS
   }
 }

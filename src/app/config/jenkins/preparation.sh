@@ -5,6 +5,7 @@ reports=(
   "${WORKSPACE}"/result/html
   "${WORKSPACE}"/result/junit
   "${WORKSPACE}"/content.email
+  "${WORKSPACE}"/result/temp
 )
 for report in "${reports[@]}"; do
   if [[ -e ${report} ]]; then

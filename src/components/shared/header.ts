@@ -1,7 +1,7 @@
 'use strict'
-import AbstractContentObject from '@classes/util/abstract.content.object'
 import { defaultWaitTimer } from '@const/global/timers'
-import { logo, visiblePage } from '@components/shared/constant'
+import { logoS } from '@components/shared/util/constant'
+import Rest from '@classes/util/rest'
 
 const container = '#headerId'
 
@@ -17,19 +17,28 @@ const selectors = {
   searchButton: '#headerSearchButton',
   menuItems: `${container} .header-mainmenu-list-item`,
   tel: '#headerTel',
-  logo: logo,
+  logo: logoS,
   personalManagerContainer: '#headerPersonalManager',
   modalPersonalManagerName: '#headerModalPersonalManagerName',
-  miniBasket: '#headerMiniBasket',
-  miniBasketQuantity: '#headerMiniBasketQuantity',
+  miniBasket: {
+    container: '#headerMiniBasket',
+    quantity: '#headerMiniBasketQuantity',
+  },
 }
 
-export default class Header extends AbstractContentObject {
+export default class Header extends Rest {
   static getSelectors = () => selectors;
 
   async searchFor(text: string, timeout = defaultWaitTimer) {
-    await super.type(selectors.searchInput, text, timeout)
-    return visiblePage
+    await super.clickPuppeteer(selectors.searchInput)
+    await super.waitForAnimation()
+
+    const typed: Promise<any> = super.type(selectors.searchInput, text, timeout)
+    const URI = `getPage?Ntt=${encodeURI(text)}`
+    const response = await super.waitForResponseURLToContain(URI)
+    const responseJson = await response.json()
+    await typed
+    return responseJson.result.data.body.contents[0].MainContent[0].totalNumRecs
   }
 
   async clickSearch() {
@@ -58,7 +67,7 @@ export default class Header extends AbstractContentObject {
   }
 
   async openBasket() {
-    await super.click(selectors.searchButton)
+    await super.click(selectors.miniBasket.container)
   }
 
   async clickHamburgerMenu() {
@@ -66,7 +75,7 @@ export default class Header extends AbstractContentObject {
   }
 
   async clickOnMenuItem(position = 0) {
-    await super.clickOnPuppeteer(selectors.menuItems, position)
+    await super.clickAndWaitEndecaContent(selectors.menuItems, position)
   }
 
   async openLoginModal() {
@@ -86,7 +95,7 @@ export default class Header extends AbstractContentObject {
   }
 
   async checkMiniBasketExists() {
-    return super.waitFor(selectors.miniBasket)
+    return super.waitFor(selectors.miniBasket.container)
   }
 
   async expandAccountMenu() {
@@ -110,8 +119,9 @@ export default class Header extends AbstractContentObject {
   }
 
   async getAmountOfProductsInMiniCart(): Promise<number> {
+    await this.checkMiniBasketExists()
     try {
-      const qty = await super.getText(selectors.miniBasketQuantity)
+      const qty = await super.getText(selectors.miniBasket.quantity)
       if (qty) {
         return parseInt(qty)
       } else {
@@ -120,5 +130,9 @@ export default class Header extends AbstractContentObject {
     } catch (e) {
       return 0
     }
+  }
+
+  async waitForLogo() {
+    await super.waitFor(selectors.logo)
   }
 }

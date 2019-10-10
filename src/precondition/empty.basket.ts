@@ -1,21 +1,27 @@
 'use strict'
 import { PagesMap } from '@classes/pages.map'
 import { test } from '@actions'
-import { logo } from '@components/shared/constant'
 
-const emptyBasket = (po: PagesMap) => {
-  test('empty basket', async () => {
-    const HomePage = po.homePage
-    const Basket = po.basket
+export const emptyBasketExecute = async (pages: PagesMap) => {
+  const Header = pages.header
+  const Basket = pages.basket
 
-    await HomePage.openRelative('cart', logo)
-    try {
-      await Basket.checkBasketIsEmpty()
-    } catch (e) {
-      await Basket.clearBasket()
-    }
-    const result = await Basket.checkBasketIsEmpty()
-    expect(result).toBeTruthy()
+  // noinspection ES6MissingAwait
+  const openBasket = Basket.openThis()
+  const itemsExist = await Basket.itemsInBasketExist()
+  await Promise.resolve(openBasket)
+  if (itemsExist) {
+    await Basket.clearBasket()
+  }
+  const result = await Basket.checkBasketIsEmpty()
+  expect(result).toBeTruthy()
+  const amount = await Header.getAmountOfProductsInMiniCart()
+  expect(amount).toBeLessThanOrEqual(0)
+}
+
+const emptyBasket = (pages: PagesMap, name: string = 'empty basket') => {
+  test(name, async () => {
+    await emptyBasketExecute(pages)
   })
 }
 

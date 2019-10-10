@@ -6,6 +6,7 @@ const {
 const datetime = require('node-datetime')
 const currentTime = datetime.create(new Date(), 'y-m-d H-M-S').format()
 const rimraf = require('rimraf')
+const mkdirp = require('mkdirp')
 
 const fs = require('fs')
 const writeFileP = require('write-file-p')
@@ -52,10 +53,18 @@ const writePerformance = (name, options, result) => {
   writeFileP.sync(filePath, result)
 }
 
-const createResultDir = (dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
+const createDirIfNotExist = (dir) => {
+  if (!exists(dir)) {
+    mkdirp.sync(dir, function(err) {
+      if (err) {
+        console.error(err)
+      }
+    })
   }
+}
+
+const exists = (dir) => {
+  return fs.existsSync(dir)
 }
 
 const renameFile = (sourcePath, destinationPath) => {
@@ -79,9 +88,10 @@ module.exports = {
   writeEmailContent,
   writeResult,
   writePerformance,
-  createResultDir,
+  createDirIfNotExist,
   renameFile,
   removeFile,
   clearDir,
   readDir,
+  exists,
 }

@@ -3,9 +3,10 @@ import pages from '@pages'
 import { multiPack, ui } from '@actions'
 import checkWithLogin from '@precondition/guest.and.logged.in'
 import ProductLandingPage from '@components/page/listing/product.landing.page'
-import { lead } from '@components/shared/constant'
+import { leadS } from '@components/shared/util/constant'
 import Breadcrumbs from '@components/shared/breadcrumbs'
 
+const user = undefined
 const listingSelectors = ProductLandingPage.getListingSelectors()
 const breadcrumbs = Breadcrumbs.getSelectors()
 
@@ -16,7 +17,7 @@ multiPack('Product Landing Page', () => {
 
   const execute = (loggedInUser?: boolean) => {
     ui('navigation to categories', async () => HomePage.clickOnCategory(1))
-    ui('category banner', async () => lead)
+    ui('category banner', async () => leadS)
     ui('category breadcrumbs', async () => breadcrumbs.container)
     ui('category products', async () => listingSelectors.products.container)
     ui('category navigation', async () => listingSelectors.navigation.container)
@@ -24,8 +25,10 @@ multiPack('Product Landing Page', () => {
     ui('amount of products displayed status', async () => listingSelectors.displayAmount)
     ui('navigation to PDP', async () => Category.goToPDPAndBack(0))
     ui('add to Basket or open modal', async () => {
-      await Category.addToBasketOrOpenModal(0)
-      if (!loggedInUser) {
+      if (loggedInUser) {
+        await Category.addToBasket(0)
+      } else {
+        await Category.openModal(0)
         await Category.screenshot()
         return Modal.close()
       }
@@ -64,5 +67,5 @@ multiPack('Product Landing Page', () => {
     ui('open first page', async () => Category.openPreviousPage())
   }
 
-  checkWithLogin(pages, execute)
+  checkWithLogin(pages, user, execute)
 })

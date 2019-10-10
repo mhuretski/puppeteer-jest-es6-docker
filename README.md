@@ -2,7 +2,7 @@
 
 ## build or pull image
 ```bash
-docker build -t image-e2e-tests .
+docker build --network=host -t mhuretski/puppet-jest-es6 .
 docker pull mhuretski/puppet-jest-es6
 ```
 ## start in jenkins
@@ -23,6 +23,24 @@ npm test --ENV_TO_CHECK=<LOCAL> --BUILD_NUMBER=<BUILD_NUMBER> <SPEC> --CHECK=<UI
 ##### Example
 ```bash
 npm test --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=100 spec --CHECK=UI --debug --SCREENSHOT=true
+```
+
+##### In docker
+```bash
+docker create --name=LOCAL_TEST_SPEC \
+  -v $(pwd)/result:/app/result \
+  -v $(pwd)/src:/app/src \
+  -v $(pwd)/tests:/app/tests \
+  --user $(id -u):$(id -g) \
+  --network=host \
+  mhuretski/puppet-jest-es6 \
+  npm test \
+  --silent \
+  --ENV_TO_CHECK=LOCAL \
+  --BUILD_NUMBER=100 \
+  SPEC \
+  --CHECK=SPEC \
+  --SCREENSHOT=true
 ```
 
 ##### IDE scope setup pattern:

@@ -1,11 +1,11 @@
 'use strict'
-import AbstractContentObject from '@classes/util/abstract.content.object'
+import Rest from '@classes/util/rest'
 
 const selectors = {
   breadcrumbs: '#articleOneColumnPageWithCollapsingTextBreadcrumbs',
 }
 
 export default class ArticleOneColumnPageWithCollapsingText
-  extends AbstractContentObject {
+  extends Rest {
   static getSelectors = () => selectors;
 }

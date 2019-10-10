@@ -1,0 +1,8 @@
+'use strict'
+export const spinnerS = '#spinner'
+export const pageContainerS = '#pageContainer'
+export const visiblePageS = '#app'
+export const leadS = '#leadId'
+export const alertS = '.redux-toastr .top-right'
+export const imageS = 'img'
+export const logoS = '#headerLogo'

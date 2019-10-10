@@ -1,12 +1,12 @@
 'use strict'
 import pages from '@pages'
-import { multiPack, ui } from '@actions'
+import { isMobileDevice, multiPack, ui } from '@actions'
 import HomePage from '@components/page/home.page'
 import Header from '@components/shared/header'
 import Footer from '@components/shared/footer'
-import { isMobileDevice } from '@precondition/open.homepage'
 import checkWithLogin from '@precondition/guest.and.logged.in'
 
+const user = undefined
 const headerSelectors = Header.getSelectors()
 const homePageSelectors = HomePage.getSelectors()
 const footerSelectors = Footer.getSelectors()
@@ -112,5 +112,5 @@ multiPack('Homepage', () => {
     })
   }
 
-  checkWithLogin(pages, executeUI, executeNavigation)
+  checkWithLogin(pages, user, executeUI, executeNavigation)
 })

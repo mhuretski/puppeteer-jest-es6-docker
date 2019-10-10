@@ -17,7 +17,7 @@ import {
 } from '@const/properties/init.values'
 import { defaultViewport } from '@config/puppet.settings'
 import { browser } from '@config/jest.settings'
-import devices from '@config/devices/device.settings'
+import devices, { desktopUserAgent } from '@config/devices/device.settings'
 import pageObjects from '@pages'
 import path from 'path'
 import {
@@ -37,38 +37,43 @@ import { getInstance, getResponseTag } from '@soap'
 import { SOAP } from '@const/properties/constants'
 import { Page as PuppeteerPage } from 'puppeteer'
 import {
-  defaultImagesWaitTimer,
   defaultPerformanceWaitTimer,
   defaultTimeout,
+  defaultWaitTimer,
 } from '@const/global/timers'
-import { startErrorMessage } from '@const/global/error.messages'
+import { startErrorExceptionMessage } from '@const/global/error.messages'
 import { CHECK } from '@const/global/flags'
-import { isMobileDevice } from '@precondition/open.homepage'
 
 const stackTrace = require('stack-trace')
 
 let puppeteerPage: PuppeteerPage
 let count: number
+export let isMobileDevice: boolean
+export let currentDevice: string | undefined
 
-const updatePageObjects = (page: PuppeteerPage) => {
-  Object.keys(pageObjects).map(po => pageObjects[po].setPage(page))
+export const updatePuppeteerPageObjects = (page: PuppeteerPage) => {
+  puppeteerPage = page
+  Object.keys(pageObjects).forEach(po => pageObjects[po].set(browser, page))
 }
 
-const setDevice = async (name: string) => {
+export const setDevice = async (name: string) => {
   const deviceObject = devices.find(e => e.name === name)
-  if (deviceObject !== undefined) await puppeteerPage.emulate(deviceObject)
+  if (deviceObject !== undefined) {
+    isMobileDevice = deviceObject.userAgent !== desktopUserAgent
+    await puppeteerPage.emulate(deviceObject)
+  }
 }
 
 const getFilePrefix = () => {
   const getCallerFile = () => {
     let callerFile
-    const rootFile = 'index.js'
+    const rootPath = '\\tests\\'
 
     const trace = stackTrace.get()
     const currentFile = trace[0].getFileName()
     for (let i = 1; i < trace.length; i++) {
       callerFile = trace[i].getFileName()
-      if (currentFile !== callerFile && !callerFile.includes(rootFile)) {
+      if (currentFile !== callerFile && callerFile.includes(rootPath)) {
         break
       }
     }
@@ -102,7 +107,7 @@ const describePropsString = () => {
     case SOAP_TEST:
     case API_TEST:
     default:
-      throw new Error('Error! Multi pack is currently for UI only.')
+      throw new Error(`Error! Multi pack is currently for UI only. Current prefix is "${prefix}".`)
   }
 }
 
@@ -122,19 +127,25 @@ const setPackNameForSingle = (name: string, prefix: string) => {
   }
 }
 
-const newPageWithNewContext = async (browser: any) => {
+const newPageWithNewContext = async () => {
+  // @ts-ignore
   const { browserContextId } = await browser._connection.send('Target.createBrowserContext')
+  // @ts-ignore
   puppeteerPage = await browser._createPageInContext(browserContextId)
   // @ts-ignore
   puppeteerPage.browserContextId = browserContextId
   await puppeteerPage.emulateMedia('screen')
 }
 
-async function closePage(browser: any, page: any) {
-  if (page.browserContextId !== undefined) {
-    await browser._connection.send('Target.disposeBrowserContext', { browserContextId: page.browserContextId })
-  } else {
-    await page.close()
+async function closeMultiPackPage() {
+  if (!(await puppeteerPage.isClosed())) {
+    // @ts-ignore
+    if (puppeteerPage.browserContextId !== undefined) {
+      // @ts-ignore
+      await browser._connection.send('Target.disposeBrowserContext', { browserContextId: puppeteerPage.browserContextId })
+    } else {
+      await puppeteerPage.close()
+    }
   }
 }
 
@@ -161,12 +172,13 @@ export const multiPack = (name: string, fn: () => void,
           case SPEC_TEST:
           case UI_TEST:
             beforeAll(async () => {
-              await newPageWithNewContext(browser)
+              await newPageWithNewContext()
+              currentDevice = entity
               await setDevice(entity)
-              updatePageObjects(puppeteerPage)
+              updatePuppeteerPageObjects(puppeteerPage)
             })
             afterAll(async () => {
-              await closePage(browser, puppeteerPage)
+              await closeMultiPackPage()
             })
             break
           case PERF_TEST:
@@ -181,7 +193,7 @@ export const multiPack = (name: string, fn: () => void,
       break
     default:
       throw new Error(
-        startErrorMessage(checkFlag.name, CHECK, checkFlag.values))
+        startErrorExceptionMessage(checkFlag.name, CHECK, checkFlag.values))
   }
 }
 
@@ -204,14 +216,18 @@ export const singlePack = (name: string,
     case TEST_LAUNCH: {
       describe(setPackNameForSingle(name, prefix), () => {
         switch (prefix) {
+          case SPEC_TEST:
           case UI_TEST:
             beforeAll(async () => {
               puppeteerPage = await browser.newPage()
               await puppeteerPage.setViewport(defaultViewport)
-              updatePageObjects(puppeteerPage)
+              isMobileDevice = false
+              updatePuppeteerPageObjects(puppeteerPage)
             })
             afterAll(async () => {
-              await puppeteerPage.close()
+              if (!(await puppeteerPage.isClosed())) {
+                await puppeteerPage.close()
+              }
             })
             break
           case PERF_TEST:
@@ -229,7 +245,6 @@ export const singlePack = (name: string,
               getPerformanceResults(name, setup)
             }
             break
-          case SPEC_TEST:
           case API_TEST:
           case REST_TEST:
           case SOAP_TEST:
@@ -245,7 +260,7 @@ export const singlePack = (name: string,
     }
     default:
       throw new Error(
-        startErrorMessage(checkFlag.name, CHECK, checkFlag.values))
+        startErrorExceptionMessage(checkFlag.name, CHECK, checkFlag.values))
   }
 }
 
@@ -335,7 +350,15 @@ export type FunctionWithTestName = {
 export const test = (name: string, fn: FunctionWithTestName,
         timeout = defaultTimeout) => {
   fn.testName = name
-  it(`${++count} ${name}`, fn, timeout)
+  const doneTest = async () => {
+    try {
+      await fn()
+    } catch (e) {
+      throw new Error(e.toString().slice(0, 1000))
+    }
+  }
+
+  it(`${++count} ${name}`, doneTest, timeout)
 }
 
 /*
@@ -374,7 +397,7 @@ export const ui = (name: string, fn: FunctionWithTestName,
 export const exist = (name: string,
         value: string | ((isMobileDevice: boolean) => string),
         testTimeout = defaultTimeout,
-        waitTimeout = defaultImagesWaitTimer) => {
+        waitTimeout = defaultWaitTimer) => {
   const fn = async () => {
     value = (typeof value === 'string') ? value : value(isMobileDevice)
     const result = await pageObjects.checker.waitFor(value, waitTimeout)

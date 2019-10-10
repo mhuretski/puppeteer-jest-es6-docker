@@ -1,5 +1,6 @@
 'use strict'
-import AbstractContentObject from '@classes/util/abstract.content.object'
+
+import Rest from '@classes/util/rest'
 
 const selectors = {
   profileCardContainer: '#accountPageProfileCardContainer',
@@ -15,7 +16,7 @@ const selectors = {
   personalManagerName: '#accountPagePersonalManagerName',
 }
 
-export default class AccountPage extends AbstractContentObject {
+export default class AccountPage extends Rest {
   static getSelectors = () => selectors;
 
   async openPersonalManagerModal() {

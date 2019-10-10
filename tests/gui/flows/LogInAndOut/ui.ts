@@ -15,7 +15,7 @@ multiPack('Login and Logout flow', () => {
   ui('user is logged in', async () => {
     await LoginModal.typeLogin()
     await LoginModal.typePassword()
-    await LoginModal.submit()
+    await LoginModal.submitLogin()
     await Header.checkAccountMenuExists()
   })
   ui('personal manager is displayed', async () => Header.checkManagerExists())

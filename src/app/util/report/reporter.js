@@ -3,12 +3,12 @@ const datetime = require('node-datetime')
 const currentTime = datetime.create(new Date(), 'y-m-d H-M-S').format()
 const analyzer = require('./analyzer.js')
 const { resultDir, historyDir, emailDir } = require('../../const/properties/output.values')
-const { writeResult, writeEmailContent, createResultDir } = require('../writer')
+const { writeResult, writeEmailContent, createDirIfNotExist } = require('../writer')
 
 class Reporter {
   // noinspection JSUnusedGlobalSymbols
   onRunComplete(contexts, results) {
-    createResultDir(resultDir)
+    createDirIfNotExist(resultDir)
 
     const analyzedContext = this._compareResults(results, `${resultDir}/${historyDir}`)
 

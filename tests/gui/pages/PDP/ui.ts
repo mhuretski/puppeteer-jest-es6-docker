@@ -2,21 +2,23 @@
 import pages from '@pages'
 import { exist, multiPack, test, ui } from '@actions'
 import checkWithLogin from '@precondition/guest.and.logged.in'
-import { defaultPDPPath } from '@components/shared/paths'
+import { defaultPDPPath } from '@components/shared/util/paths'
 import ProductDetailsPage from '@components/page/product.details.page'
-import { alert, logo } from '@components/shared/constant'
-import { isMobileDevice } from '@precondition/open.homepage'
+import { alertS, logoS } from '@components/shared/util/constant'
 import emptyBasket from '@precondition/empty.basket'
+import { addToBasketWithToastVerification } from '@precondition/items.to.basket'
 
+const user = 3
 const pdpSelectors = ProductDetailsPage.getSelectors()
 
 multiPack('Product Details Page', () => {
   const HomePage = pages.homePage
   const Pdp = pages.productDetailsPage
+  const Toast = pages.toastModal
   const Modal = pages.baseModal
 
   const checkExistence = (loggedInUser?: boolean) => {
-    test('open pdp', async () => HomePage.openRelative(defaultPDPPath, logo))
+    test('open pdp', async () => HomePage.openRelative(defaultPDPPath, logoS))
     exist('main image', pdpSelectors.image.main)
     exist('additional images', pdpSelectors.image.thumbnails.container)
     exist('title', isMobileDevice => (isMobileDevice)
@@ -43,7 +45,7 @@ multiPack('Product Details Page', () => {
 
   const executeUI = (loggedInUser?: boolean) => {
     if (loggedInUser) emptyBasket(pages)
-    ui('npk pdp', async () => HomePage.openRelative(defaultPDPPath, logo))
+    ui('npk pdp', async () => HomePage.openRelative(defaultPDPPath, logoS))
     ui('view image', async () => {
       const image = await Pdp.viewImage(1)
       const property = 'src'
@@ -53,6 +55,7 @@ multiPack('Product Details Page', () => {
       return pdpSelectors.image.container
     })
     ui('download file', async () => Pdp.checkBrochure())
+    test('npk pdp reopen', async () => HomePage.openRelative(defaultPDPPath, logoS))
     if (loggedInUser) {
       ui('increase quantity', async () => {
         await Pdp.increase(2)
@@ -67,22 +70,29 @@ multiPack('Product Details Page', () => {
         return pdpSelectors.actions.quantity.container
       })
       ui('add to basket', async () => {
-        await Pdp.addToBasket(isMobileDevice)
+        await Pdp.addToBasket()
         const res = await Pdp.getCurrentQuantity()
         expect(res).toBe(1)
         return pdpSelectors.actions.quantity.container
       })
-      ui('add max with notification', async () => {
+      ui('add max', async () => {
         const amount = 99999
         await Pdp.itemsToAdd(amount)
         const res = await Pdp.getCurrentQuantity()
         expect(res).toBe(amount)
-        await Pdp.addToBasket(isMobileDevice)
-        return alert
+        await Pdp.addToBasket()
+        return pdpSelectors.actions.addToCart
       })
-      ui('add max with error', async () => {
-        await Pdp.addToBasket(isMobileDevice)
-        return pdpSelectors.actions.quantity.container
+      ui('success notification is shown', async () => {
+        await Toast.checkSuccessPresence()
+        const res = await Pdp.getCurrentQuantity()
+        expect(res).toBe(1)
+        return alertS
+      })
+      ui('error notification is shown', async () => {
+        await Toast.waitSuccessAbsence()
+        await addToBasketWithToastVerification('Toast is not shown', Pdp, Toast)
+        return alertS
       })
       emptyBasket(pages)
     } else {
@@ -91,5 +101,5 @@ multiPack('Product Details Page', () => {
     }
   }
 
-  checkWithLogin(pages, checkExistence, executeUI)
+  checkWithLogin(pages, user, checkExistence, executeUI)
 })

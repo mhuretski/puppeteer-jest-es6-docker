@@ -6,5 +6,5 @@ const selectors = {
 }
 
 export default class VideoPlayerModal extends BaseModal {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 }
