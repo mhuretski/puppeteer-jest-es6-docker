@@ -1,17 +1,19 @@
 'use strict'
 import { productResponseMask } from '@soap'
-import { multiSoapTest } from '@app/global/actions'
+import { DataSoap, multiSoapTest } from '@app/global/actions'
+import request from '@soapData/description.error'
+import { SOAP } from 'src/app/const/properties/constants'
 
-const data = [
+const data: DataSoap[] = [
   {
-    name: 'attempt to recreate SKU INVENTORY_ITEM_ID and SEGMENT1 are unique combination',
-    requestFile: 'tests/api/soap/data/existing_sku.xml',
+    name: 'description absence',
+    request: request,
     responseMask: productResponseMask,
     expect: [
-      { tag: 'ERROR_CODE', expected: 'Can\'t recreate sku' },
+      { tag: 'ERROR_CODE', expected: 'REQUIRED_FIELD_MISSED' },
       { tag: 'STATUS_OWC', expected: 'ERROR' },
-      { tag: 'INVENTORY_ITEM_ID', expected: '555444111' },
+      { tag: 'INVENTORY_ITEM_ID', expected: '593' },
     ],
   },
 ]
-multiSoapTest('Products Pack', 'webservice/addProduct', data)
+multiSoapTest('Products Pack', SOAP.addProduct, data)

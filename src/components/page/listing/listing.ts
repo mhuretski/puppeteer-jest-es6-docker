@@ -3,13 +3,13 @@ import { ElementHandle } from 'puppeteer'
 import quantity from '@components/shared/util/quantity'
 import { leadS } from '@components/shared/util/constant'
 import { AddToBasketInterface } from '@interfaces'
-import { defaultResponseWaitTimer } from '@const/global/timers'
+import { defaultResponseWaitTimer, defaultWaitTimer } from '@const/global/timers'
 import Rest from '@classes/util/rest'
 
 const productsContainer = '#productItemsList'
 const product = `${productsContainer} #productItem`
-const addToBasketContainer = `${product} #addToBasketButton`
-const buttonDisabled = 'button[disabled]'
+const addToBasketContainer = `${product} #addToBasketButton button`
+const buttonDisabled = '[disabled]'
 const navigationContainer = '#navigationFacets'
 const navigationFacet = `${navigationContainer} .collapse-element-default`
 
@@ -35,7 +35,7 @@ const selectors = {
     },
     addToBasket: {
       container: addToBasketContainer,
-      absoluteDisabled: `${addToBasketContainer} ${buttonDisabled}`,
+      absoluteDisabled: `${addToBasketContainer}${buttonDisabled}`,
       relativeDisabled: buttonDisabled,
     },
     openModal: `${product} #openModalButton`,
@@ -64,17 +64,30 @@ class Listing extends Rest implements AddToBasketInterface {
     await super.clickOnPuppeteer(selectors.products.pdpLink, position)
   }
 
-  async goToPDPAndBack(position = 0) {
-    await this.goToPDP(position)
-    await super.screenshot()
-    return super.goBack()
+  async goToPDPAndBack(position = 0, url?: string) {
+    try {
+      await this.goToPDP(position)
+      await super.screenshot()
+    } finally {
+      await super.goBack(url)
+    }
   }
 
   async addToBasket(position = 0) {
     const button = await super.getElementFromListPuppeteer(
       selectors.products.addToBasket.container, position)
     // noinspection ES6MissingAwait
-    const clicked = button.click()
+    const clicked = this._page.waitFor(
+      (selector: string, position: number) => {
+        // @ts-ignore
+        const elements: HTMLElement[] = document.querySelectorAll(selector)
+        if (elements) {
+          elements[position].click()
+          return true
+        }
+      },
+      { timeout: defaultWaitTimer },
+      selectors.products.addToBasket.container, position)
 
     const timeout = defaultResponseWaitTimer
     const isAddedResponse = super.waitAddItemToOrderResponse(timeout)
@@ -84,6 +97,7 @@ class Listing extends Rest implements AddToBasketInterface {
     await button.$(
       selectors.products.addToBasket.relativeDisabled)
     await Promise.resolve(clicked)
+      .catch(e => console.log('addToBasket', e))
   }
 
   async openModal(position = 0) {
@@ -146,7 +160,7 @@ class Listing extends Rest implements AddToBasketInterface {
 
   async openNextPage() {
     const before = await super.getText(selectors.displayAmount)
-    await super.clickPuppeteer(selectors.pagination.next)
+    await super.click(selectors.pagination.next)
     await super.waitForSpinnerToDisappear()
     const after = await super.getText(selectors.displayAmount)
     expect(before).not.toEqual(after)
@@ -171,9 +185,9 @@ class Listing extends Rest implements AddToBasketInterface {
   async _pagination(selector: string, position?: number) {
     const before = await super.getText(selectors.displayAmount)
     if (position) {
-      await super.clickOnPuppeteer(selector, position)
+      await super.clickOn(selector, position)
     } else {
-      await super.clickPuppeteer(selector)
+      await super.click(selector)
     }
     await super.waitForSpinnerToDisappear()
     const after = await super.getText(selectors.displayAmount)

@@ -59,13 +59,13 @@ export default class HomePage extends Rest {
 
   async clickOnBestSeller(position = 0) {
     await super.clickOnPuppeteer(
-      selectors.bestSellers.itemButtons, position
+      selectors.bestSellers.itemButtons, position,
     )
   }
 
   async expandCulture(position = 0) {
     await super.clickOnPuppeteer(
-      selectors.recommendation.cultureButton, position
+      selectors.recommendation.cultureButton, position,
     )
   }
 
@@ -75,7 +75,7 @@ export default class HomePage extends Rest {
 
   async openProductFromRecommendation(position = 0) {
     await super.clickOnPuppeteer(
-      selectors.recommendation.productItemButton, position
+      selectors.recommendation.productItemButton, position,
     )
   }
 
@@ -102,7 +102,7 @@ export default class HomePage extends Rest {
 
   async clickOnTechnologiesLink(position = 0) {
     await super.clickOnPuppeteer(
-      selectors.technologies.itemButtons, position
+      selectors.technologies.itemButtons, position,
     )
   }
 

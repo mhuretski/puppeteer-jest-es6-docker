@@ -40,13 +40,17 @@ export const addItemToBasketFromPLP = async (pages: PagesMap) => {
   await addToBasketWithToastVerification('Item is not added to Basket from PLP', Category, Toast)
 }
 
+const checkAmountOfItemsInBasket = async (pages: PagesMap) => {
+  await pages.basket.openThis()
+  const result = await pages.header.getAmountOfProductsInMiniCart()
+  expect(result).toBeGreaterThanOrEqual(2)
+}
+
 const addItemsToBasket = (pages: PagesMap) => {
   test('add items to basket from PLP and PDP', async () => {
     await addItemToBasketFromPLP(pages)
     await addItemToBasketFromPDP(pages)
-
-    const result = await pages.header.getAmountOfProductsInMiniCart()
-    expect(result).toBeGreaterThanOrEqual(2)
+    await checkAmountOfItemsInBasket(pages)
   })
 }
 

@@ -23,6 +23,7 @@
                         "@soap": "./src/app/soap/soap.ts",
                         "@actions": "./src/app/global/actions.ts",
                         "@interfaces": "./interfaces.d.ts",
+                        "@soapData": "./tests/api/soap/data",
                         "tests": "./tests",
                         "result": "./result",
                         "underscore": "lodash"

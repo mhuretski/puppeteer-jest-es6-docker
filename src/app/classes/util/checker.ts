@@ -108,15 +108,15 @@ export default class Checker extends Waiter {
       if (gottenText) gottenText = gottenText.toLowerCase()
       text = text.toLowerCase()
     }
-    screenshot
-      ? (await this.its(gottenText)).toMatch(text)
-      : this.it(gottenText).toMatch(text)
+    screenshot ?
+      (await this.its(gottenText)).toMatch(text) :
+      this.it(gottenText).toMatch(text)
   }
 
   async toBeDefined(
           selector: string,
           screenshot = true,
-          timeout = defaultWaitTimer,) {
+          timeout = defaultWaitTimer) {
     const isDefined = async () => {
       try {
         return await super.waitFor(selector, timeout)
@@ -156,17 +156,17 @@ export default class Checker extends Waiter {
 
   async toBeVisible(selector: string, screenshot = true) {
     const isVisible = await super.isVisibleWithAnimationTimer(selector)
-    screenshot
-      ? (await this.its(isVisible)).toBeTruthy()
-      : this.it(isVisible).toBeTruthy()
+    screenshot ?
+      (await this.its(isVisible)).toBeTruthy() :
+      this.it(isVisible).toBeTruthy()
     return isVisible
   }
 
   async toBeInvisible(selector: string, screenshot = true) {
     const isInvisible = !(await super.isVisibleWithAnimationTimer(selector))
-    screenshot
-      ? (await this.its(isInvisible)).toBeTruthy()
-      : this.it(isInvisible).toBeTruthy()
+    screenshot ?
+      (await this.its(isInvisible)).toBeTruthy() :
+      this.it(isInvisible).toBeTruthy()
     return isInvisible
   }
 }

@@ -18,16 +18,17 @@ const selectors = {
   removeAllItemsInBasketButton: '#removeAllItemsInBasketButton',
   goToCatalogFromEmptyBasket: '#goToCatalogFromEmptyBasket',
   continueShopping: continueShopping,
+  confirmTerms: 'input[name="accessionContractAgreed"]',
   submit: '#basketCheckout',
   products: {
     container: productsContainer,
     product: product,
     pdpLink: `${product} a`,
     quantity: {
-      container: `${product} ${quantity.container}`,
-      increase: `${product} ${quantity.increase}`,
-      input: `${product} ${quantity.input}`,
-      decrease: `${product} ${quantity.decrease}`,
+      container: `${product} div[id*="${quantity.container}"]`,
+      increase: `${product} div[id*="${quantity.increase}"]`,
+      input: `${product} input[id*="${quantity.input}"]`,
+      decrease: `${product} div[id*="${quantity.decrease}"]`,
     },
     remove: '#removeItem',
   },
@@ -66,7 +67,7 @@ export default class Basket extends Rest {
 
   async itemsInBasketExist() {
     const cartSummary = await super.waitShoppingCartSummaryResponse()
-    const response = await cartSummary.json()
+    const response: any = await cartSummary.json()
     if (response.cartInfo.successResponse) {
       return response.cartInfo.data.shoppingCart.commerceItems.length > 0
     } else {
@@ -81,6 +82,7 @@ export default class Basket extends Rest {
       'Failed deletion from basket.')
 
     await Promise.resolve(cartSummaryResponse)
+      .catch(e => console.log('clearBasket', e))
   }
 
   async checkBasketIsEmpty() {
@@ -95,18 +97,23 @@ export default class Basket extends Rest {
 
   async continueShopping() {
     await super.clickPuppeteer(selectors.continueShopping)
+    await super.waitForSpinnerToDisappear()
   }
 
   async goToCatalogFromEmptyBasket() {
     await super.clickPuppeteer(selectors.goToCatalogFromEmptyBasket)
   }
 
+  async confirmTerms() {
+    await super.clickWithoutException(selectors.confirmTerms)
+  }
+
   async submit() {
-    await super.clickPuppeteer(selectors.submit)
+    await super.click(selectors.submit)
   }
 
   async removeDates() {
-    await super.clickPuppeteer(selectors.date.clear)
+    await super.click(selectors.date.clear)
     return selectors.date.container
   }
 
@@ -120,14 +127,12 @@ export default class Basket extends Rest {
 
   async _chooseClosestDate(date: 'startDate' | 'endDate') {
     if (await super.isInvisible(selectors.date.modal.container)) {
+      await super.scrollIntoViewIfNeeded(selectors.date[date].container)
+      await super.waitForAnimation()
       await super.clickPuppeteer(selectors.date[date].container)
       await super.waitForAnimation()
     }
-    await super.clickPuppeteer(selectors.date.modal.closestAvailableDate)
-    if (await super.isInvisible(selectors.date.modal.container)) {
-      await super.clickPuppeteer(selectors.date[date].container)
-    }
-    await super.clickPuppeteer(selectors.date.modal[date])
+    await super.click(selectors.date.modal.closestAvailableDate)
   }
 
   async removeItem(position = 0) {
@@ -139,6 +144,7 @@ export default class Basket extends Rest {
       `Item at position ${position} is not removed from basket.`)
 
     await Promise.resolve(cartSummaryRest)
+      .catch(e => console.log('removeItem', e))
     await this.waitAmountOfProductsToBe(before - 1)
   }
 
@@ -202,7 +208,11 @@ export default class Basket extends Rest {
     return true
   }
 
-  async getCurrentQuantity(position = 0, timeout = defaultWaitTimer) {
+  async getCurrentFloatQuantity(position = 0, timeout = defaultWaitTimer) {
+    return super.getFloatValue(selectors.products.quantity.input, timeout)
+  }
+
+  async getCurrentIntQuantity(position = 0, timeout = defaultWaitTimer) {
     return super.getIntValue(selectors.products.quantity.input, timeout)
   }
 

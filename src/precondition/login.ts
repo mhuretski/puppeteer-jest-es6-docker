@@ -21,6 +21,7 @@ export const loginExecute = async (pages: PagesMap, user?: User) => {
   const submitEvent: Promise<void> = LoginModal.submitLogin(user)
   orderId = await Header.getOrderId()
   await Promise.resolve(submitEvent)
+    .catch(e => console.log('loginExecute', e))
   await LoginModal.waitForAnimation()
   await LoginModal.isHidden()
   await Header.checkLogoExists()

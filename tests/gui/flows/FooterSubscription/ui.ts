@@ -26,6 +26,7 @@ singlePack('Footer subscription', () => {
     return footerSelectors.subscribeContainer
   })
   test('subscription exists in system', async () => {
+    await ProfileAdapterRepository.openThis()
     const subscriptionId =
       await ProfileAdapterRepository.getFooterSubscriptionId()
     await ProfileAdapterRepository.toBeGreaterThanOrEqual(subscriptionId,

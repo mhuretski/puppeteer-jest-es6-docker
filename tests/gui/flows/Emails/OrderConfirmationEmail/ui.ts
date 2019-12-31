@@ -1,6 +1,6 @@
 'use strict'
 import pages from '@pages'
-import { multiPack, ui } from '@actions'
+import { multiPack, test } from '@actions'
 import { defaultEmailWaitTimer } from '@const/global/timers'
 import submitOrder from '@precondition/submit.order'
 import loggedIn from '@precondition/logged.in'
@@ -12,9 +12,16 @@ multiPack('Order Email', () => {
 
   const execute = () => {
     submitOrder(pages)
-    ui('order confirmation email', async () => {
+    /*
+     * UI isn't checked because of google pixel issue.
+     * Sometimes content is rendered with +-1 pixel size difference.
+     * Existence is checked and its key components.
+     */
+    test('open mailbox', async () => {
       await Email.openMailbox(user)
-      return Email.getOrderConfirmation()
+    })
+    test('order confirmation email', async () => {
+      await Email.getOrderConfirmation()
     }, defaultEmailWaitTimer)
   }
   loggedIn(pages, user, execute)

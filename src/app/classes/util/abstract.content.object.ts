@@ -10,7 +10,7 @@ import {
   itemOutOfBoundExceptionMessage,
   selectExceptionMessage,
 } from '@const/global/error.messages'
-import { DirectNavigationOptions, ElementHandle } from 'puppeteer'
+import { Cookie, DirectNavigationOptions, ElementHandle } from 'puppeteer'
 import { ENTER } from '@const/global/keyboard.keys'
 import { buildSpecificTempDir } from '@const/global/paths'
 import {
@@ -25,9 +25,13 @@ import { ChromeHTMLElement, NodeListOf } from '@interfaces'
 export default class AbstractContentObject extends Checker {
   async open(path = MAIN_PAGE,
           spinnerPresenceTimeout = defaultSpinnerWaitToBePresentTimer,
-          options: DirectNavigationOptions = { waitUntil: 'networkidle0' }
+          options: DirectNavigationOptions = { waitUntil: 'networkidle0' },
   ) {
-    await this._page.goto(path, options)
+    try {
+      await this._page.goto(path, options)
+    } catch (e) {
+      console.log(`WARNING Couldn't wait until "${options.waitUntil} is fired trying to navigate to "${path}".`, e)
+    }
     await super.waitForSpinnerToDisappear(spinnerPresenceTimeout)
   }
 
@@ -63,9 +67,12 @@ export default class AbstractContentObject extends Checker {
     }
   }
 
-  async screenshotAndGoBack(selector?: string) {
-    await super.screenshot(selector)
-    return this.goBack()
+  async screenshotAndGoBack(url?: string, selector?: string) {
+    try {
+      await super.screenshot(selector)
+    } finally {
+      await this.goBack(url)
+    }
   }
 
   async goBackPuppeteer() {
@@ -74,10 +81,12 @@ export default class AbstractContentObject extends Checker {
     return true
   }
 
-  async goBack() {
-    await this._page.evaluate(() => window.history.back())
-    await super.waitForSpinnerToDisappear()
-    await super.waitForImages()
+  async goBack(url?: string) {
+    if ((await super.getURL()) !== url) {
+      await this._page.evaluate(() => window.history.back())
+      await super.waitForSpinnerToDisappear()
+      await super.waitForImages()
+    }
     return true
   }
 
@@ -85,20 +94,30 @@ export default class AbstractContentObject extends Checker {
     await this._page.goForward()
   }
 
-  isXpath(selector: string) {
-    return selector.startsWith('//')
+  async setCookie(...cookies: Cookie[]) {
+    await this._page.setCookie(...cookies)
+  }
+
+  async getCookies(): Promise<Cookie[]> {
+    return this._page.cookies()
   }
 
   async clickAndBack(selector: string,
+          url?: string,
           timeout = defaultWaitTimer,
           fn?: Function) {
-    await this.click(selector, timeout)
-    if (fn) fn()
-    return this.goBack()
+    try {
+      await this.click(selector, timeout)
+      if (fn) fn()
+    } finally {
+      await this.goBack(url)
+    }
   }
 
-  async clickScreenAndBack(selector: string, timeout = defaultWaitTimer) {
-    return this.clickAndBack(selector, timeout, super.screenshot)
+  async clickScreenAndBack(selector: string,
+          url?: string,
+          timeout = defaultWaitTimer) {
+    return this.clickAndBack(selector, url, timeout, super.screenshot)
   }
 
   async changeElementContentTo(
@@ -107,11 +126,9 @@ export default class AbstractContentObject extends Checker {
           replaceValue: string = '',
           replacePattern: string = '',
           timeout = defaultWaitTimer) {
-    const isXpath = this.isXpath(selector)
-    if (!isXpath) {
-      await super.waitFor(selector, timeout)
-    }
+    await super.waitFor(selector, timeout)
 
+    const isXpath = this.isXpath(selector)
     await this._page.evaluate((whatIsReplaced, selector, isXpath,
             replaceValue, replacePattern) => {
       let elem
@@ -143,7 +160,7 @@ export default class AbstractContentObject extends Checker {
 
   async getText(selector: string, timeout = defaultWaitTimer)
     : Promise<string> {
-    if (this.isXpath(selector)) {
+    if (super.isXpath(selector)) {
       const elemXPath = (await this._page.$x(selector))[0]
       return this._page.evaluate(e => e.innerText, elemXPath)
     } else {
@@ -167,8 +184,24 @@ export default class AbstractContentObject extends Checker {
     }
     if (element) {
       const htmlContent = await element.getProperty('innerHTML')
-      if (htmlContent) return htmlContent.jsonValue()
+      if (htmlContent) {
+        // @ts-ignore
+        return htmlContent.jsonValue()
+      }
     }
+  }
+
+  async setValue(selector: string, value: string, timeout = defaultWaitTimer):
+    Promise<void> {
+    await super.waitFor(selector, timeout)
+    await this._page.evaluate((selector, value) => {
+      document.querySelector(selector).value = value
+    }, selector, value)
+  }
+
+  async emptyValue(selector: string, timeout = defaultWaitTimer):
+    Promise<void> {
+    await this.setValue(selector, '', timeout)
   }
 
   async getValue(selector: string, timeout = defaultWaitTimer):
@@ -184,6 +217,14 @@ export default class AbstractContentObject extends Checker {
     await super.waitFor(selector, timeout)
     return this._page.evaluate((selector) => {
       return parseInt(document.querySelector(selector).value)
+    }, selector)
+  }
+
+  async getFloatValue(selector: string, timeout = defaultWaitTimer):
+    Promise<number> {
+    await super.waitFor(selector, timeout)
+    return this._page.evaluate((selector) => {
+      return parseFloat(document.querySelector(selector).value)
     }, selector)
   }
 
@@ -206,18 +247,26 @@ export default class AbstractContentObject extends Checker {
     await this._page.tap(selector)
   }
 
+  async hover(selector: string, timeout = defaultWaitTimer) {
+    await super.waitFor(selector, timeout)
+    try {
+      await this._page.hover(selector)
+    } catch (e) {
+      console.log(`WARNING couldn't hover selector "${selector}"`)
+    }
+  }
+
   async clickPuppeteer(selector: string, timeout = defaultWaitTimer) {
-    let element
-    if (this.isXpath(selector)) {
-      element = (await this._page.$x(selector)).shift()
+    if (super.isXpath(selector)) {
+      const element = (await this._page.$x(selector)).shift()
+      if (element) {
+        await element.click()
+      } else {
+        throw new Error(clickTimeoutExceptionMessage(selector, timeout))
+      }
     } else {
       await super.waitFor(selector, timeout)
-      element = await this._page.$(selector)
-    }
-    if (element) {
-      await element.click()
-    } else {
-      throw new Error(clickTimeoutExceptionMessage(selector, timeout))
+      await this._page.click(selector)
     }
   }
 
@@ -227,7 +276,14 @@ export default class AbstractContentObject extends Checker {
    */
   async click(selector: string, timeout = defaultWaitTimer) {
     await super.waitFor(selector, timeout)
-    const result = await this._page.evaluate((selector: string) => {
+    const result = await this.clickWithoutException(selector)
+    if (!result) {
+      throw new Error(clickTimeoutExceptionMessage(selector, timeout))
+    }
+  }
+
+  async clickWithoutException(selector: string) {
+    return this._page.evaluate((selector: string) => {
       const elem: ChromeHTMLElement | null = document.querySelector(selector)
       if (elem) {
         elem.scrollIntoViewIfNeeded()
@@ -235,9 +291,6 @@ export default class AbstractContentObject extends Checker {
         return true
       }
     }, selector)
-    if (!result) {
-      throw new Error(clickTimeoutExceptionMessage(selector, timeout))
-    }
   }
 
   async clickByCoordinatesInBrowser(selector: string,
@@ -249,7 +302,7 @@ export default class AbstractContentObject extends Checker {
         clickEvent.initMouseEvent(
           'click', true, true, window, 0,
           0, 0, x, y, false, false,
-          false, false, 0, null
+          false, false, 0, null,
         )
         const elem = document.elementFromPoint(x, y)
         if (elem) elem.dispatchEvent(clickEvent)
@@ -282,6 +335,26 @@ export default class AbstractContentObject extends Checker {
     return element
   }
 
+  async scrollIntoView(selector: string,
+          position = 0,
+          timeout = defaultWaitTimer) {
+    await super.waitFor(selector, timeout)
+    await this._page.evaluate((selector: string, position: number) => {
+      const elem: any = document.querySelectorAll(selector)
+      elem[position].scrollIntoView()
+    }, selector, position)
+  }
+
+  async scrollIntoViewIfNeeded(selector: string, timeout = defaultWaitTimer) {
+    await super.waitFor(selector, timeout)
+    await this._page.evaluate((selector: string) => {
+      const elem: any = document.querySelector(selector)
+      if (elem) {
+        elem.scrollIntoViewIfNeeded()
+      }
+    }, selector)
+  }
+
   async countElements(selector: string)
     : Promise<number> {
     return this._page.evaluate((selector) => {
@@ -311,11 +384,20 @@ export default class AbstractContentObject extends Checker {
     await super.waitForSpinnerToDisappear()
   }
 
+  async clickOnLastPuppeteer(selector: string,
+          timeout = defaultWaitTimer) {
+    const elem = await this.getLastElementFromListPuppeteer(selector, timeout)
+    await elem.click()
+    await super.waitForSpinnerToDisappear()
+  }
+
   async clickElementFromListPuppeteer(selector: string,
           position = 0,
           timeout = defaultWaitTimer) {
     const element = await this.getElementFromListPuppeteer(
       selector, position, timeout)
+    await this.scrollIntoView(selector, position, timeout)
+    await super.waitForAnimation()
     await element.click()
   }
 
@@ -329,6 +411,16 @@ export default class AbstractContentObject extends Checker {
         itemOutOfBoundExceptionMessage(selector, position, elements.length))
     }
     return elements[position]
+  }
+
+  async getLastElementFromListPuppeteer(selector: string,
+          timeout = defaultWaitTimer) {
+    await super.waitFor(selector, timeout)
+    const elements = await this.getElementsPuppeteer(selector)
+    if (elements.length === 0) {
+      throw new Error(`Couldn't find any elements for selector: "${selector}".`)
+    }
+    return elements[elements.length - 1]
   }
 
   async getElementFromParentElementPuppeteer(element: ElementHandle,
@@ -441,7 +533,7 @@ export default class AbstractContentObject extends Checker {
 
   async getSelectOptionValues(
           selector: string,
-          optionsSelector = 'options'
+          optionsSelector = 'options',
   ): Promise<string[]> {
     return this._page.evaluate((selector, optionsSelector) => {
       const select = document.querySelector(selector)

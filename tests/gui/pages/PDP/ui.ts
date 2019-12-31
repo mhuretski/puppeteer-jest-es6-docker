@@ -21,12 +21,12 @@ multiPack('Product Details Page', () => {
     test('open pdp', async () => HomePage.openRelative(defaultPDPPath, logoS))
     exist('main image', pdpSelectors.image.main)
     exist('additional images', pdpSelectors.image.thumbnails.container)
-    exist('title', isMobileDevice => (isMobileDevice)
-      ? pdpSelectors.data.mobile.title
-      : pdpSelectors.data.desktop.title)
-    exist('formula', isMobileDevice => (isMobileDevice)
-      ? pdpSelectors.data.mobile.formula
-      : pdpSelectors.data.desktop.formula)
+    exist('title', isMobileDevice => (isMobileDevice) ?
+      pdpSelectors.data.mobile.title :
+      pdpSelectors.data.desktop.title)
+    exist('formula', isMobileDevice => (isMobileDevice) ?
+      pdpSelectors.data.mobile.formula :
+      pdpSelectors.data.desktop.formula)
     exist('description', pdpSelectors.data.description)
     exist('sortPack', pdpSelectors.data.sortPack)
     exist('color', pdpSelectors.data.color)
@@ -60,13 +60,13 @@ multiPack('Product Details Page', () => {
       ui('increase quantity', async () => {
         await Pdp.increase(2)
         const res = await Pdp.getCurrentQuantity()
-        expect(res).toBe(3)
+        expect(res).toBe(1.2)
         return pdpSelectors.actions.quantity.container
       })
       ui('decrease quantity', async () => {
         await Pdp.decrease()
         const res = await Pdp.getCurrentQuantity()
-        expect(res).toBe(2)
+        expect(res).toBe(1.1)
         return pdpSelectors.actions.quantity.container
       })
       ui('add to basket', async () => {

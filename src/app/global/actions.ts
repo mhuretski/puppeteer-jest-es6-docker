@@ -16,7 +16,7 @@ import {
   UI_TEST,
 } from '@const/properties/init.values'
 import { defaultViewport } from '@config/puppet.settings'
-import { browser } from '@config/jest.settings'
+import { browser, checkBrowserConnectionBeforeAll } from '@config/jest.settings'
 import devices, { desktopUserAgent } from '@config/devices/device.settings'
 import pageObjects from '@pages'
 import path from 'path'
@@ -43,7 +43,6 @@ import {
 } from '@const/global/timers'
 import { startErrorExceptionMessage } from '@const/global/error.messages'
 import { CHECK } from '@const/global/flags'
-
 const stackTrace = require('stack-trace')
 
 let puppeteerPage: PuppeteerPage
@@ -67,17 +66,24 @@ export const setDevice = async (name: string) => {
 const getFilePrefix = () => {
   const getCallerFile = () => {
     let callerFile
-    const rootPath = '\\tests\\'
+    const rootPathWindows = '\\tests\\'
+    const rootPathLinux = '/tests/'
 
     const trace = stackTrace.get()
     const currentFile = trace[0].getFileName()
     for (let i = 1; i < trace.length; i++) {
       callerFile = trace[i].getFileName()
-      if (currentFile !== callerFile && callerFile.includes(rootPath)) {
+      if (currentFile !== callerFile &&
+        (callerFile.includes(rootPathWindows) ||
+          callerFile.includes(rootPathLinux)
+        )) {
         break
       }
     }
 
+    if (!callerFile) {
+      throw new Error('Filename not found.')
+    }
     return callerFile
   }
 
@@ -128,12 +134,28 @@ const setPackNameForSingle = (name: string, prefix: string) => {
 }
 
 const newPageWithNewContext = async () => {
+  checkBrowserConnectionBeforeAll(browser, 'actions')
+
+  /*
+    // A reference for the default browser context
+  const defaultContext = browser.defaultBrowserContext();
+  console.info(defaultContext.isIncognito()); // False
+
+  // Creates a new browser context
+  const newContext = await browser.createIncognitoBrowserContext();
+  console.info(newContext.isIncognito()); // True
+
+  // Closes the created browser context
+  await newContext.close();
+  */
+
   // @ts-ignore
   const { browserContextId } = await browser._connection.send('Target.createBrowserContext')
   // @ts-ignore
   puppeteerPage = await browser._createPageInContext(browserContextId)
   // @ts-ignore
   puppeteerPage.browserContextId = browserContextId
+  // @ts-ignore
   await puppeteerPage.emulateMedia('screen')
 }
 
@@ -311,28 +333,36 @@ export interface ExpectSoap {
 
 export interface DataSoap {
   name: string,
-  requestFile: string,
+  request: string,
   responseMask: Function,
   expect: ExpectSoap[],
 }
 
-export const multiSoapTest = (name: string, instance: string, data: DataSoap[],
+export const multiSoapTest = (name: string,
+        instance: string,
+        data: DataSoap[],
         baseURL = SOAP.baseURL,
         rejectUnauthorized = false,
         timeout = defaultTimeout) => {
   describe(setPackNameForSingle(name, prefix), () => {
     let soapRequest: Function
     beforeAll(async () => {
-      soapRequest = getInstance(instance, baseURL)
+      soapRequest = getInstance(instance, baseURL, rejectUnauthorized)
     })
     data.forEach(dataEntity => {
       count = 0
       test(dataEntity.name, async () => {
-        const res = await soapRequest(dataEntity.requestFile,
+        const res = await soapRequest(dataEntity.request,
           dataEntity.responseMask)
 
         dataEntity.expect.forEach(exp => {
-          expect(getResponseTag(res, exp.tag)).toContain(exp.expected)
+          let result
+          try {
+            result = getResponseTag(res, exp.tag)
+          } catch (e) {
+            throw new Error(`ERROR Couldn't get response tag.\nExpected: "${exp.expected}".\nReceived response: ${JSON.stringify(res)}`)
+          }
+          expect(result).toContain(exp.expected)
         })
       }, timeout)
     })

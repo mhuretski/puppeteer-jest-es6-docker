@@ -33,6 +33,7 @@ multiPack('Homepage', () => {
   }
   const executeNavigation = (loggedInUser?: boolean) => {
     ui('navigation in header', async () => {
+      const url = await HomePage.getURL()
       if (isMobileDevice) {
         await Header.clickHamburgerMenu()
       }
@@ -40,15 +41,17 @@ multiPack('Homepage', () => {
       if (isMobileDevice) {
         await Header.clickHamburgerMenu()
       }
-      return Header.screenshotAndGoBack()
+      return Header.screenshotAndGoBack(url)
     })
     ui('navigation in banner', async () => {
+      const url = await HomePage.getURL()
       await HomePage.openBanner(0)
-      return HomePage.screenshotAndGoBack()
+      return HomePage.screenshotAndGoBack(url)
     })
     ui('navigation in categories', async () => {
+      const url = await HomePage.getURL()
       await HomePage.clickOnCategory(0)
-      return HomePage.screenshotAndGoBack()
+      return HomePage.screenshotAndGoBack(url)
     })
     if (!loggedInUser) {
       ui('open recommendation', async () => {
@@ -60,23 +63,27 @@ multiPack('Homepage', () => {
         return homePageSelectors.recommendation.container
       })
       ui('navigate to product from recommendation', async () => {
+        const url = await HomePage.getURL()
         await HomePage.expandCulture(0)
         await HomePage.openProductFromRecommendation()
-        return HomePage.screenshotAndGoBack()
+        return HomePage.screenshotAndGoBack(url)
       })
       ui('navigate to all products from recommendation', async () => {
+        const url = await HomePage.getURL()
         await HomePage.expandCulture(0)
         await HomePage.openAllProductsPageFromRecommendation()
-        return HomePage.screenshotAndGoBack()
+        return HomePage.screenshotAndGoBack(url)
       })
     }
     ui('navigation in FAQ ask agro', async () => {
+      const url = await HomePage.getURL()
       await HomePage.clickOnAskAgro()
-      return HomePage.screenshotAndGoBack()
+      return HomePage.screenshotAndGoBack(url)
     })
     ui('navigation in FAQ ask manager', async () => {
+      const url = await HomePage.getURL()
       await HomePage.clickOnAskManager()
-      return HomePage.screenshotAndGoBack()
+      return HomePage.screenshotAndGoBack(url)
     })
     if (loggedInUser) {
       ui('FAQ personal manager', async () => {
@@ -93,22 +100,26 @@ multiPack('Homepage', () => {
       return Modal.close()
     })
     ui('navigation in technologies links', async () => {
+      const url = await HomePage.getURL()
       await HomePage.clickOnTechnologiesLink(0)
-      return HomePage.screenshotAndGoBack()
+      return HomePage.screenshotAndGoBack(url)
     })
     ui('navigation in technologies research results', async () => {
+      const url = await HomePage.getURL()
       await HomePage.clickOnTechnologiesResearchResult()
-      return HomePage.screenshotAndGoBack()
+      return HomePage.screenshotAndGoBack(url)
     })
     if (!loggedInUser) {
       ui('navigation in bestSellers', async () => {
+        const url = await HomePage.getURL()
         await HomePage.clickOnBestSeller(0)
-        return HomePage.screenshotAndGoBack()
+        return HomePage.screenshotAndGoBack(url)
       })
     }
     ui('navigation in footer', async () => {
+      const url = await HomePage.getURL()
       await Footer.clickOnLink(0)
-      return Footer.screenshotAndGoBack()
+      return Footer.screenshotAndGoBack(url)
     })
   }
 

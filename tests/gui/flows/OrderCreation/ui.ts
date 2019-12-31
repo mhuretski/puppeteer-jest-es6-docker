@@ -24,6 +24,7 @@ multiPack('Order creation', () => {
       expect(end.length).toEqual(10)
     })
     ui('submit order front', async () => {
+      await Basket.confirmTerms()
       await Basket.submit()
       await Basket.checkSuccess()
     })

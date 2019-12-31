@@ -42,9 +42,10 @@ multiPack('Basket', () => {
       test('start date is set by default', async () => {
         const start = await Basket.getStartDate()
         expect(start.length).toEqual(10)
+      })
+      ui('remove dates', async () => {
         await Basket.removeDates()
       })
-      ui('remove dates', async () => Basket.removeDates())
       emptyBasket(pages, 'remove all items from basket')
       ui('view empty basket', async () => {
         const result = await Basket.checkBasketIsEmpty()
@@ -62,6 +63,7 @@ multiPack('Basket', () => {
       itemsToBasket(pages)
       test('open basket', async () => Header.openBasket())
       ui('date error appearance after submit', async () => {
+        await Basket.confirmTerms()
         await Basket.submit()
         await Basket.checkErrorMessagePresence()
         return basketSelectors.date.errorMessage
@@ -98,20 +100,20 @@ multiPack('Basket', () => {
       })
       ui('increase quantity', async () => {
         await Basket.increaseQuantity(3, 0)
-        const res = await Basket.getCurrentQuantity(0)
-        expect(res).toBe(4)
+        const res = await Basket.getCurrentFloatQuantity(0)
+        expect(res).toBe(1.3)
         return Basket.screenshotQuantity(0)
       })
       ui('decrease quantity', async () => {
         await Basket.decreaseQuantity(2, 0)
-        const res = await Basket.getCurrentQuantity(0)
-        expect(res).toBe(2)
+        const res = await Basket.getCurrentFloatQuantity(0)
+        expect(res).toBe(1.1)
         return Basket.screenshotQuantity(0)
       })
       ui('max quantity', async () => {
         const amount = 99999
         await Basket.setQuantityOfItem(amount, 0)
-        const res = await Basket.getCurrentQuantity(0)
+        const res = await Basket.getCurrentFloatQuantity(0)
         expect(res).toBe(amount)
         return Basket.screenshotQuantity(0)
       })

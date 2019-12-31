@@ -24,8 +24,15 @@ multiPack('Password Recovery Email', () => {
     await LoginModal.sendPassword(GET_USER(user).login)
     await LoginModal.backToLogin()
   }, defaultTimeout * 2)
-  ui('password recovery email', async () => {
+  test('open mailbox', async () => {
     await Email.openMailbox(user)
+  })
+  /*
+   * UI isn't checked because of google pixel issue.
+   * Sometimes content is rendered with +-1 pixel size difference.
+   * Existence is checked and its key components.
+   */
+  test('password recovery email', async () => {
     return Email.openPasswordRecovery()
   }, defaultEmailWaitTimer)
   ui('follow reset password link', async () => {

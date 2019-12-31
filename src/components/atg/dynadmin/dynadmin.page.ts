@@ -31,9 +31,9 @@ export default class DynAdmin extends AbstractContentObject {
     try {
       return await super.getText(selectors.results)
         .then(res =>
-          (res)
-            ? res.split('\n').filter(e => e.length > 0)
-            : null
+          (res) ?
+            res.split('\n').filter(e => e.length > 0) :
+            null,
         ).then(res => {
           if (res) {
             for (let i = 0; i < res.length; i++) {
@@ -55,12 +55,12 @@ export default class DynAdmin extends AbstractContentObject {
       DYN_ADMIN.printItem(id, descriptor))
 
     return super.getText(selectors.results)
-      .then((res: string | null) => (res)
-        ? res.split('\n')
+      .then((res: string | null) => (res) ?
+        res.split('\n')
           .filter(e => e.length > 0)
           .filter(e => !e.includes('------'))
-          .join()
-        : null)
+          .join() :
+        null)
       .then((res: string | null) => {
         if (res) {
           const parser = new DOMParser()

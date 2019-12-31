@@ -9,7 +9,7 @@ import Rest from '@classes/util/rest'
 
 const cropsContainer = '#pdpCrops'
 const thumbnailContainer = '#pdpImageThumbnails'
-const addToCartContainer = '#pdpAddToCart'
+const addToCartContainer = '#pdpAddToCart button'
 
 const selectors = {
   image: {
@@ -46,10 +46,15 @@ const selectors = {
   },
   actions: {
     addToCart: addToCartContainer,
-    disabled: `${addToCartContainer} button[disabled]`,
+    disabled: `${addToCartContainer}[disabled]`,
     enabled: '#addToBasketEnabled',
-    contactUs: '#pdpContactUs',
-    quantity: quantity,
+    contactUs: '#pdpContactUs button',
+    quantity: {
+      container: `div[id*="${quantity.container}"]`,
+      increase: `div[id*="${quantity.increase}"] button`,
+      input: `input[id*="${quantity.input}"]`,
+      decrease: `div[id*="${quantity.decrease}"] button`,
+    },
   },
   info: {
     container: '#pdpInfo',
@@ -71,14 +76,16 @@ export default class ProductDetailsPage
 
   async addToBasket() {
     await super.waitFor(selectors.actions.enabled)
-    const clicked = (await super.isMobile())
-      ? super.tap(selectors.actions.addToCart)
-      : super.clickPuppeteer(selectors.actions.addToCart)
+    const clicked = (await super.isMobile()) ?
+      super.click(selectors.actions.addToCart) :
+      super.clickPuppeteer(selectors.actions.addToCart)
     const isAddedResponse = super.waitAddItemToOrderResponse()
+    const shoppingCartSummaryResponse = super.waitShoppingCartSummaryResponse()
     await super.checkResponseForErrors('Add to basket response error.', isAddedResponse)
 
     await super.waitForElement(selectors.actions.disabled)
-    await Promise.resolve(clicked)
+    await Promise.all([clicked, shoppingCartSummaryResponse])
+      .catch(e => console.log('addToBasket', e))
   }
 
   async waitForAddToBasketButtonAnimation() {
@@ -87,18 +94,18 @@ export default class ProductDetailsPage
   }
 
   async openModal() {
-    await super.clickPuppeteer(selectors.actions.contactUs)
+    await super.click(selectors.actions.contactUs)
   }
 
   async increase(amount = 1) {
     for (let i = 0; i < amount; i++) {
-      await super.clickPuppeteer(selectors.actions.quantity.increase)
+      await super.click(selectors.actions.quantity.increase)
     }
   }
 
   async decrease(amount = 1) {
     for (let i = 0; i < amount; i++) {
-      await super.clickPuppeteer(selectors.actions.quantity.decrease)
+      await super.click(selectors.actions.quantity.decrease)
     }
   }
 
@@ -107,7 +114,7 @@ export default class ProductDetailsPage
   }
 
   async getCurrentQuantity(timeout = defaultWaitTimer) {
-    return super.getIntValue(selectors.actions.quantity.input, timeout)
+    return super.getFloatValue(selectors.actions.quantity.input, timeout)
   }
 
   async viewImage(position = 0, timeout = defaultWaitTimer) {
@@ -125,6 +132,9 @@ export default class ProductDetailsPage
     return this.checkFile(selectors.documents.brochure)
   }
 
+  /*
+   * On Windows without docker requires http://www.graphicsmagick.org/INSTALL-windows.html
+   */
   async checkFile(selector: string,
           downloadFolder = buildSpecificTempDir,
           fileName = defaultFileName,

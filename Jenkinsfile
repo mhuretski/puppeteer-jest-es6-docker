@@ -16,6 +16,16 @@ pipeline {
         string defaultValue: '', description: 'nothing if triggered manually', name: 'PARENT_GIT_COMMIT', trim: false
         booleanParam defaultValue: true, description: 'defines whether screenshot snapshots are tested', name: 'SCREENSHOT'
         booleanParam defaultValue: false, description: 'defines whether to attach failed screenshot snapshots to email', name: 'ATTACH_SCREEN'
+        credentials(name: 'dynAdminUser',
+                description: 'dynAdmin user to build with',
+                defaultValue: 'dynAdminDev',
+                credentialType: 'com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl',
+                required: true)
+        credentials(name: 'soapUser',
+                description: 'soap user to build with',
+                defaultValue: 'soapDev',
+                credentialType: 'com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl',
+                required: true)
     }
     stages {
         stage('clear results of previous run') {
@@ -25,7 +35,18 @@ pipeline {
         }
         stage('run tests') {
             steps {
-                sh "chmod 744 ${tests} && ${tests}"
+                withCredentials([usernamePassword(
+                        credentialsId: '${dynAdminUser}',
+                        usernameVariable: 'DYN_USERNAME',
+                        passwordVariable: 'DYN_PASSWORD',
+                ),
+                usernamePassword(
+                        credentialsId: '${soapUser}',
+                        usernameVariable: 'SOAP_USERNAME',
+                        passwordVariable: 'SOAP_PASSWORD',
+                )]) {
+                    sh "chmod 744 ${tests} && ${tests} --DYN_USERNAME='${DYN_USERNAME}' --DYN_PASSWORD='${DYN_PASSWORD}' --SOAP_USERNAME='${SOAP_USERNAME}' --SOAP_PASSWORD='${SOAP_PASSWORD}'"
+                }
             }
         }
         stage('set email content') {

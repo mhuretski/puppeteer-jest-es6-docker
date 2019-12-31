@@ -1,5 +1,11 @@
 'use strict'
 import { StartProperties } from '@interfaces'
+import {
+  DYN_PASSWORD,
+  DYN_USERNAME,
+  SOAP_PASSWORD,
+  SOAP_USERNAME,
+} from '@const/global/flags'
 
 const CONFIG: StartProperties = {
   MAIN_PAGE: 'https://example-stage.com/',
@@ -7,13 +13,15 @@ const CONFIG: StartProperties = {
   defaultPasswordValue: 'test-email',
   DYN_ADMIN: {
     PROD_SCHEME_URL: 'http://example.com:7003/dyn/admin/',
-    username: 'admin',
-    password: 'admin123',
+    username: DYN_USERNAME,
+    password: DYN_PASSWORD,
   },
   SOAP: {
     baseURL: 'https://example.com/',
     addProduct: 'webservice/secondExample',
     addOrganization: 'webservice/secondExample',
+    username: SOAP_USERNAME,
+    password: SOAP_PASSWORD,
   },
   EMAIL: {
     orderConfirmation: {

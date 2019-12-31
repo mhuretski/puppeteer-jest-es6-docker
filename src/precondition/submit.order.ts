@@ -14,6 +14,7 @@ export const submitOrderExecute = async (pages: PagesMap) => {
   await Basket.setClosestEndDate()
   const end = await Basket.getEndDate()
   expect(end.length).toEqual(10)
+  await Basket.confirmTerms()
   await Basket.submit()
   await Basket.checkSuccess()
 }

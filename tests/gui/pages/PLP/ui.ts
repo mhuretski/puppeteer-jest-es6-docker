@@ -6,7 +6,7 @@ import ProductLandingPage from '@components/page/listing/product.landing.page'
 import { leadS } from '@components/shared/util/constant'
 import Breadcrumbs from '@components/shared/breadcrumbs'
 
-const user = undefined
+const user = 0
 const listingSelectors = ProductLandingPage.getListingSelectors()
 const breadcrumbs = Breadcrumbs.getSelectors()
 
@@ -23,7 +23,10 @@ multiPack('Product Landing Page', () => {
     ui('category navigation', async () => listingSelectors.navigation.container)
     ui('category pagination', async () => listingSelectors.pagination.container)
     ui('amount of products displayed status', async () => listingSelectors.displayAmount)
-    ui('navigation to PDP', async () => Category.goToPDPAndBack(0))
+    ui('navigation to PDP', async () => {
+      const url = await Category.getURL()
+      await Category.goToPDPAndBack(0, url)
+    })
     ui('add to Basket or open modal', async () => {
       if (loggedInUser) {
         await Category.addToBasket(0)

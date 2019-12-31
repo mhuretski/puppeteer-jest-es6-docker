@@ -1,6 +1,6 @@
 'use strict'
 import pages from '@pages'
-import { isMobileDevice, multiPack, ui, test } from '@actions'
+import { multiPack, ui, test, exist } from '@actions'
 import checkWithLogin from '@precondition/guest.and.logged.in'
 import SearchPage from '@components/page/listing/search.page'
 import { leadS, visiblePageS } from '@components/shared/util/constant'
@@ -17,7 +17,6 @@ multiPack('Search', () => {
   const SearchPage = pages.searchPage
 
   const checkTypeaheadModal = async (expectedResult: number, text: string) => {
-    await Header.reload()
     const responseCount = await Header.searchFor(text)
     expect(responseCount).toBeGreaterThanOrEqual(expectedResult)
     const count = await SearchModal.countItems()
@@ -64,37 +63,33 @@ multiPack('Search', () => {
       await checkTypeaheadModal(0, 'ololo')
     })
     ui('empty search results with invalid input', async () => {
-      await Header.reload()
       await Header.searchFor('ololo')
-      if (isMobileDevice) {
-        await Header.clickSearch()
-      } else {
-        await Header.pressEnter()
-      }
+      await Header.clickSearch()
     })
     ui('valid search results with valid input', async () => {
       await Header.searchFor('NPK')
       await Header.clickSearch()
     })
     ui('auto corrected search result', async () => {
+      await Header.reload()
       await Header.searchFor('npkk')
       await Header.clickSearch()
     })
-    ui('search banner', async () => leadS)
-    ui('search breadcrumbs', async () => breadcrumbs.container)
-    ui('search auto correct', async () => searchSelectors.autoCorrect.container)
-    ui('search products', async () => listingSelectors.products.container)
-    ui('search navigation', async () => listingSelectors.navigation.container)
-    ui('search pagination', async () => listingSelectors.pagination.container)
-    ui('amount of products displayed status', async () => listingSelectors.displayAmount)
+    exist('search banner', leadS)
+    exist('search breadcrumbs', breadcrumbs.container)
+    exist('search auto correct', searchSelectors.autoCorrect.container)
+    exist('search products', listingSelectors.products.container)
+    exist('search navigation', listingSelectors.navigation.container)
+    exist('search pagination', listingSelectors.pagination.container)
+    exist('amount of products displayed status', listingSelectors.displayAmount)
 
-    ui('search yours instead of auto corrected', async () => SearchPage.searchByOriginalTerms())
-    ui('global search page', async () => SearchPage.openThis())
-    ui('open next page', async () => SearchPage.openNextPage())
-    ui('open previous page', async () => SearchPage.openPreviousPage())
-    ui('open fourth page', async () => SearchPage.openPaginationPage(3))
-    ui('open first page', async () => SearchPage.openFirstPage())
-    ui('open last page', async () => SearchPage.openLastPage())
+    test('search yours instead of auto corrected', async () => SearchPage.searchByOriginalTerms())
+    test('global search page', async () => SearchPage.openThis())
+    test('open next page', async () => SearchPage.openNextPage())
+    test('open previous page', async () => SearchPage.openPreviousPage())
+    test('open fourth page', async () => SearchPage.openPaginationPage(3))
+    test('open first page', async () => SearchPage.openFirstPage())
+    test('open last page', async () => SearchPage.openLastPage())
   }
   checkWithLogin(pages, user, execute)
 })

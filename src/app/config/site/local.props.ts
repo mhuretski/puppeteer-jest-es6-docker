@@ -14,6 +14,8 @@ const CONFIG: StartProperties = {
     baseURL: 'http://67.67.68.130:8180/',
     addProduct: 'webservice/addProduct',
     addOrganization: 'webservice/addOrganization',
+    username: 'admin',
+    password: 'admin123',
   },
   EMAIL: {
     orderConfirmation: {

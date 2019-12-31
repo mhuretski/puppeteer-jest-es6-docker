@@ -18,8 +18,7 @@ export const getInstance = (url: string,
 
   return async (requestXML: string, getDataByMask = (json: any) => json)
     : Promise<string[] | undefined> => {
-    const request = fs.readFileSync(requestXML, 'utf-8')
-    const data = await instance.post(url, request)
+    const data = await instance.post(url, requestXML)
       .then((response: AxiosResponse) => {
         return new Promise((resolve, reject) => {
           parseString(response.data, (err, result) => {
@@ -66,4 +65,4 @@ export const execute = async (instance: AxiosInstance, url: string,
 export const getResponseTag = (arr: string[] | undefined, tag: string | any) =>
   (arr) ? arr[tag][0] : null
 
-export const productResponseMask = (json: any) => json['S:Envelope']['S:Body'][0]['ns3:addProductResponse'][0]['response'][0]
+export const productResponseMask = (json: any) => json['S:Envelope']['S:Body'][0]['ns3:addProductResponse'][0].response[0]

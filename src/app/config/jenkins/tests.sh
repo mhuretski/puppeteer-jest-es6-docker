@@ -24,11 +24,16 @@ if [[ "$CHECK" =~ ^(UI|API|REST|SOAP|SPEC|PERF|TEST)$ ]]; then
   npm test \
   --silent \
   --runInBand \
+  --forceExit \
   --ENV_TO_CHECK=${ENV_TO_CHECK} \
   --BUILD_NUMBER=${BUILD_NUMBER} \
   ${START_FLAG} \
   --CHECK=${CHECK} \
-  --SCREENSHOT=${SCREENSHOT}
+  --SCREENSHOT=${SCREENSHOT} \
+  --DYN_USERNAME=${DYN_USERNAME} \
+  --DYN_PASSWORD=${DYN_PASSWORD} \
+  --SOAP_USERNAME=${SOAP_USERNAME} \
+  --SOAP_PASSWORD=${SOAP_PASSWORD}
 
   time=$(date '+%Y-%m-%dT%H:%M:%S')
   docker start ${TESTS_CONTAINER}

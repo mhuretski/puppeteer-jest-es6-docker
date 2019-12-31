@@ -33,6 +33,10 @@ export default class Page {
     this.setPage(page)
   }
 
+  async getURL(): Promise<string> {
+    return this._page.url()
+  }
+
   async executeInNewPage(newTargetAction: Function, options: any) {
     // save this to know that this was the opener
     const pageTarget = this._page.target()
@@ -44,6 +48,7 @@ export default class Page {
     const newPage = await newTarget.page()
 
     await Promise.resolve(newTargetActionPromise)
+      .catch(e => console.log('executeInNewPage', e))
     try {
       await this._page.close()
     } finally {

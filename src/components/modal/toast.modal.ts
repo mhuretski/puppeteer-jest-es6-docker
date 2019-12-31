@@ -1,6 +1,9 @@
 'use strict'
 import { alertS } from '@components/shared/util/constant'
 import Rest from '@classes/util/rest'
+import {
+  defaultPresenceWaitTimer, defaultToastWaitTimer,
+} from '@const/global/timers'
 
 const toastContainer = alertS
 
@@ -31,6 +34,8 @@ export default class ToastModal extends Rest {
   }
 
   async waitSuccessAbsence() {
-    return super.waitElementToDisappear(selectors.success)
+    return super.waitElementToDisappear(selectors.success,
+      defaultPresenceWaitTimer,
+      defaultToastWaitTimer)
   }
 }

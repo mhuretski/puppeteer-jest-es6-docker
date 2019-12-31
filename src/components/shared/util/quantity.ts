@@ -3,10 +3,10 @@ import { BACKSPACE, DELETE, LEFT, RIGHT } from '@const/global/keyboard.keys'
 import AbstractContentObject from '@classes/util/abstract.content.object'
 
 const quantity = {
-  container: '#qtyId',
-  decrease: '#qtyDecrease',
-  increase: '#qtyIncrease',
-  input: '#qtyInput',
+  container: 'qtyId',
+  decrease: 'qtyDecrease',
+  increase: 'qtyIncrease',
+  input: 'qtyInput',
 }
 
 export default quantity

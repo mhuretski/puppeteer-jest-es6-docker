@@ -2,13 +2,17 @@
 import { EMAIL } from '@const/properties/constants'
 import { ElementHandle } from 'puppeteer'
 import {
+  defaultEmailRenderingWaitTimer,
   defaultEmailIterationWait,
-  defaultSpinnerPresenceTimer,
+  defaultEmailSecurityWaitTimer,
+  defaultImagesWaitTimer,
+  defaultPresenceWaitTimer,
   defaultSpinnerWaitTimer,
 } from '@const/global/timers'
 import { EmailPreviewItem, GoogleEmailSelectors, User } from '@interfaces'
 import { DEFAULT_USER, GET_USER } from '@const/global/users.reserve'
 import Rest from '@classes/util/rest'
+import { readCookies, writeCookies } from '@app/util/cookies'
 
 const xpathMobileItemContainer = (position: number) => `//div[@role="listitem"][contains(@class,"ym")][${position}]`
 const xpathDesktopItemContainer = (position: number) => `//div[@role="tabpanel"][not(@style)]//tbody/tr[contains(@class,"zE")][${position}]`
@@ -19,13 +23,14 @@ const selectors: GoogleEmailSelectors = {
     emailNextButton: '#identifierNext',
     password: '#password input',
     passwordNextButton: '#passwordNext',
+    next: '#next',
     authorized: (email: string) => `a[aria-label*="${email}"]`,
   },
   mail: {
     mobile: {
       container: '[id*="cvcmsgbod"] div',
       specificKeys: {
-        orderId: (orderIdTitle: string) => `//div[contains(text(),"${orderIdTitle}")]/ancestor::tbody[1]/tr[12]`,
+        orderId: (orderIdTitle: string) => `//div[contains(text(),"${orderIdTitle}")]/ancestor::div[contains(@class,"Ni")]/div[9]//div[contains(@style,"color:#424242")]`,
       },
       spinner: '.Ug',
       preview: {
@@ -76,13 +81,32 @@ const selectors: GoogleEmailSelectors = {
 export default class GoogleEmail extends Rest {
   static getSelectors = () => selectors
 
-  async login(user: User | undefined | number) {
-    await this._page.goto('https://accounts.google.com/ServiceLogin')
+  async login(user: User | undefined | number, isMobile: boolean) {
+    await this._page.goto('https://accounts.google.com/ServiceLogin',
+      { waitUntil: 'networkidle2' })
+
+    if (!(isMobile)) {
+      const cookies = readCookies()
+      await super.setCookie(...cookies)
+    }
+
     if (typeof user === 'number') {
       user = GET_USER(user)
     } else if (!user) {
       user = DEFAULT_USER
     }
+    await this._fillCredentials(user)
+    await this._passSecurityCheck(user, isMobile)
+
+    await this._isLoggedIn(user)
+
+    if (isMobile) {
+      const cookies = await super.getCookies()
+      writeCookies(cookies)
+    }
+  }
+
+  async _fillCredentials(user: User) {
     await super.setValueToInput(
       selectors.login.email, user.login)
     await super.click(selectors.login.emailNextButton)
@@ -90,7 +114,30 @@ export default class GoogleEmail extends Rest {
     await super.setValueToInput(selectors.login.password, user.password)
     await super.click(selectors.login.passwordNextButton)
     await this.waitGoogleLoading()
-    await super.waitFor(selectors.login.authorized(user.login))
+  }
+
+  async _isLoggedIn(user: User) {
+    await super.waitFor(selectors.login.authorized(user.login),
+      defaultImagesWaitTimer)
+  }
+
+  async _passSecurityCheck(user: User, isMobile: boolean) {
+    if (!isMobile) {
+      const securityAppear = async () => {
+        try {
+          await super.waitElementPresence(selectors.login.next,
+            defaultEmailSecurityWaitTimer)
+          return true
+        } catch (e) {
+          return false
+        }
+      }
+
+      if (await securityAppear()) {
+        await super.click(selectors.login.next)
+        await this._fillCredentials(user)
+      }
+    }
   }
 
   async waitGoogleLoading() {
@@ -98,10 +145,10 @@ export default class GoogleEmail extends Rest {
   }
 
   async openMailbox(user: User | undefined | number) {
-    await this.login(user)
+    const isMobile = await super.isMobile()
+    await this.login(user, isMobile)
     await this._page.goto('https://mail.google.com/',
-      { waitUntil: 'networkidle0' })
-    const isMobile = await this.isMobile()
+      { waitUntil: 'networkidle2' })
     await this.waitEmailBoxLoaded(isMobile)
     await this._removePromo(isMobile)
   }
@@ -138,13 +185,13 @@ export default class GoogleEmail extends Rest {
   }
 
   async prepareOrderConfirmationEmailForScreen(isMobile: boolean) {
-    await super.waitForNavigation()
+    await super.waitInNodeApp(defaultEmailRenderingWaitTimer)
     await super.changeElementContentTo(
       'innerText',
-      isMobile
-        ? this._device(isMobile).specificKeys.orderId(
-          selectors.template.orderConfirmation.orderIdTitle)
-        : this._device(isMobile).specificKeys.orderId)
+      isMobile ?
+        this._device(isMobile).specificKeys.orderId(
+          selectors.template.orderConfirmation.orderIdTitle) :
+        this._device(isMobile).specificKeys.orderId)
   }
 
   async preparePasswordRecoveryEmailForScreen() {
@@ -201,7 +248,7 @@ export default class GoogleEmail extends Rest {
 
   async clickPasswordRecoveryLink() {
     await super.executeInNewPage(
-      super.clickPuppeteer,
+      super.clickOnLastPuppeteer,
       selectors.template.passwordRecovery.recoveryLink)
   }
 
@@ -217,7 +264,7 @@ export default class GoogleEmail extends Rest {
   async waitEmailSpinnerToDisappear(isMobile: boolean) {
     if (isMobile) {
       await super.waitElementToDisappear(this._device(isMobile).spinner,
-        defaultSpinnerPresenceTimer,
+        defaultPresenceWaitTimer,
         defaultSpinnerWaitTimer * 3)
     }
   }
@@ -273,9 +320,9 @@ export default class GoogleEmail extends Rest {
         this._device(isMobile).preview.item.textSelector(emailItem.title)))
     )[0]
     try {
-      await elemXPath.click().then(() => super.waitForNavigation('networkidle0'))
+      await elemXPath.click()
     } catch (e) {
-      throw new Error(`Couldn't open email item "${emailItem}".`)
+      throw new Error(`Couldn't open email item "${emailItem.title.toString()}".`)
     }
   }
 }

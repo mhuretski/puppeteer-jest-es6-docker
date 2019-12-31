@@ -6,7 +6,7 @@ import {
   defaultDownloadWaitTimer,
   defaultImagesWaitTimer,
   defaultResponseWaitTimer,
-  defaultSpinnerPresenceTimer,
+  defaultPresenceWaitTimer,
   defaultSpinnerWaitTimer,
   defaultWaitTimer,
 } from '@const/global/timers'
@@ -30,7 +30,7 @@ export default class Waiter extends Page {
   async waitForFileToDownload(downloadPath = buildSpecificTempDir,
           timeout = defaultDownloadWaitTimer) {
     let filename
-    const times = 5
+    const times = 10
     for (let i = 0; i < times; i++) {
       if (!filename) {
         filename = readDir(downloadPath)[0]
@@ -52,12 +52,13 @@ export default class Waiter extends Page {
   }
 
   async waitForSpinnerToDisappear(
-          presenceTimeout = defaultSpinnerPresenceTimer) {
-    await this.waitElementToDisappear(spinnerS, presenceTimeout)
+          timeout = defaultPresenceWaitTimer) {
+    await this.waitElementToDisappear(spinnerS, timeout)
+    await this.waitInNodeApp(timeout)
   }
 
   async waitElementPresence(element: string,
-          timeout = defaultSpinnerPresenceTimer) {
+          timeout = defaultPresenceWaitTimer) {
     await this._page.waitFor(
       (selector: string) => document.querySelector(selector),
       { timeout: timeout },
@@ -65,7 +66,7 @@ export default class Waiter extends Page {
   }
 
   async waitElementToDisappear(element: string,
-          presenceTimeout = defaultSpinnerPresenceTimer,
+          presenceTimeout = defaultPresenceWaitTimer,
           absenceTimeout = defaultSpinnerWaitTimer) {
     try {
       await this.waitElementPresence(element, presenceTimeout)
@@ -75,7 +76,7 @@ export default class Waiter extends Page {
     try {
       await this.waitElementAbsence(element, absenceTimeout)
     } catch (e) {
-      throw new Error(`Waiting for "${element}" exceeded timeout ${absenceTimeout} milliseconds.`)
+      throw new Error(`Waiting for "${element}" to disappear exceeded timeout ${absenceTimeout} milliseconds.`)
     }
   }
 
@@ -92,9 +93,18 @@ export default class Waiter extends Page {
     await this._page.waitForFunction(imagesHaveLoaded, { timeout: timeout })
   }
 
-  async waitFor(selector: string, timeout = defaultWaitTimer) {
-    await this.waitForElement(selector, timeout)
+  async waitFor(selector: string,
+          timeout = defaultWaitTimer) {
+    if (this.isXpath(selector)) {
+      await this.waitForXPath(selector, timeout)
+    } else {
+      await this.waitForElement(selector, timeout)
+    }
     return true
+  }
+
+  async waitForXPath(selector: string, timeout = defaultWaitTimer) {
+    return this._page.waitForXPath(selector, { timeout: timeout })
   }
 
   async waitForElement(selector: string, timeout = defaultWaitTimer) {
@@ -148,6 +158,7 @@ export default class Waiter extends Page {
 
   async withNavigationWait(...executables: Array<Promise<any>>) {
     await Promise.all([executables, [this.waitForNavigation()]])
+      .catch(e => console.log('withNavigationWait', e))
   }
 
   async waitForNavigation(loadEvent?: LoadEvent,
@@ -247,5 +258,9 @@ export default class Waiter extends Page {
       if (exists) return exists
       return false
     }, { selector })
+  }
+
+  isXpath(selector: string) {
+    return selector.startsWith('//')
   }
 }

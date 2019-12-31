@@ -30,6 +30,7 @@ export default class Header extends Rest {
   static getSelectors = () => selectors;
 
   async searchFor(text: string, timeout = defaultWaitTimer) {
+    await super.emptyValue(selectors.searchInput)
     await super.clickPuppeteer(selectors.searchInput)
     await super.waitForAnimation()
 
@@ -37,7 +38,9 @@ export default class Header extends Rest {
     const URI = `getPage?Ntt=${encodeURI(text)}`
     const response = await super.waitForResponseURLToContain(URI)
     const responseJson = await response.json()
-    await typed
+    await Promise.resolve(typed)
+      .catch(e => console.log('searchFor', e))
+    // @ts-ignore
     return responseJson.result.data.body.contents[0].MainContent[0].totalNumRecs
   }
 
@@ -51,8 +54,7 @@ export default class Header extends Rest {
   }
 
   async hoverAccountMenu() {
-    await super.waitFor(selectors.accountMenu)
-    await this._page.hover(selectors.accountMenu)
+    await super.hover(selectors.accountMenu)
     await super.waitFor(selectors.dropdownAccount)
   }
 

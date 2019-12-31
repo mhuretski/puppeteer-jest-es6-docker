@@ -22,13 +22,17 @@ export default class Rest extends AbstractContentObject {
 
   async getOrderId(): Promise<string> {
     const cartSummary = await this.waitShoppingCartSummaryResponse()
-    const responseJson = await cartSummary.json()
+    const responseJson: any = await cartSummary.json()
     return responseJson.cartInfo.data.shoppingCart.id
   }
 
   async isErrorResponse(response: Promise<Response>) {
     try {
-      return (await (await response).json()).isError !== false
+      const resolvedResponse = await Promise.resolve(response)
+        .catch(e => console.log('isErrorResponse', e))
+      if (!resolvedResponse) return false
+      const responseJson: any = await resolvedResponse.json()
+      return responseJson.errorResponse || responseJson.isError
     } catch (e) {
       return true
     }
@@ -36,10 +40,17 @@ export default class Rest extends AbstractContentObject {
 
   async getResponse(response: Promise<Response>,
           timeout?: number): Promise<string> {
+    const defaultError = `No response received${(timeout) ? ` within ${timeout} milliseconds.` : '.'}`
     try {
-      return `Response is "${await (await response).text()}".`
+      const resolvedResponse = await Promise.resolve(response).catch(e => console.log('getResponse', e))
+      const resultText = (resolvedResponse) ?
+        await resolvedResponse.text() :
+        null
+      if (resultText) {
+        return `Response is "${resultText}".`
+      } else return defaultError
     } catch (e) {
-      return `No response received${(timeout) ? ` within ${timeout} milliseconds.` : '.'}`
+      return defaultError
     }
   }
 
@@ -55,14 +66,13 @@ export default class Rest extends AbstractContentObject {
           errorMessage = 'Invalid response.',
           position = 0,
           timeout = defaultResponseWaitTimer) {
-    // noinspection ES6MissingAwait
-    const response = waitForResponse.call(this, timeout)
+    await super.scrollIntoView(selector, position)
+    const response: any = waitForResponse.call(this, timeout)
+
     const clicked = super.clickOnPuppeteer(selector, position)
     await this.checkResponseForErrors(errorMessage, response, timeout)
-    await Promise.all([
-      response,
-      clicked,
-    ])
+    await Promise.all([clicked, response])
+      .catch(e => console.log('resolveClickWithResponse', e))
   }
 
   async waitRemoveItemFromOrderResponse(

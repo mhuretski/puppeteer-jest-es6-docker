@@ -54,6 +54,8 @@ interface SOAP {
   baseURL: string,
   addProduct: string,
   addOrganization: string,
+  username: string,
+  password: string,
 }
 
 interface EmailData {
@@ -120,6 +122,7 @@ export interface GoogleEmailSelectors {
     emailNextButton: string,
     password: string,
     passwordNextButton: string,
+    next: string,
     authorized: Function,
   },
   mail: {
