@@ -135,20 +135,6 @@ const setPackNameForSingle = (name: string, prefix: string) => {
 
 const newPageWithNewContext = async () => {
   checkBrowserConnectionBeforeAll(browser, 'actions')
-
-  /*
-    // A reference for the default browser context
-  const defaultContext = browser.defaultBrowserContext();
-  console.info(defaultContext.isIncognito()); // False
-
-  // Creates a new browser context
-  const newContext = await browser.createIncognitoBrowserContext();
-  console.info(newContext.isIncognito()); // True
-
-  // Closes the created browser context
-  await newContext.close();
-  */
-
   // @ts-ignore
   const { browserContextId } = await browser._connection.send('Target.createBrowserContext')
   // @ts-ignore

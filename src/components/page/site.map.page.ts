@@ -9,5 +9,5 @@ const selectors = {
 }
 
 export default class SiteMapPage extends Rest {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 }

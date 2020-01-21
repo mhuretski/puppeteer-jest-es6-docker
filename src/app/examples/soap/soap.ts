@@ -7,10 +7,10 @@ import {
 import {
   getInstance,
   getResponseTag,
-  productResponseMask,
-} from '@app/soap/soap'
+} from '@soap'
 import request from '@soapData/description.error'
 import { SOAP } from '@const/properties/constants'
+import { productResponseMask } from '@app/soap/masks'
 
 /**
  * Example for single soap run

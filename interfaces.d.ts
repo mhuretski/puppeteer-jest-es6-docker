@@ -1,3 +1,13 @@
+import { Browser } from 'puppeteer'
+
+declare global {
+  namespace NodeJS {
+    interface Global {
+      puppBrowser: Promise<Browser>
+    }
+  }
+}
+
 declare interface UpdatedGlobal extends NodeJS.Global {
   reservedTestUsers: number[]
 }

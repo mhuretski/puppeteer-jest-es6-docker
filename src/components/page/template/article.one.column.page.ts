@@ -7,5 +7,5 @@ const selectors = {
 }
 
 export default class ArticleOneColumnPage extends Rest {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 }

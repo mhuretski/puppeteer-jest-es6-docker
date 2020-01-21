@@ -74,7 +74,7 @@ pipeline {
                             recipientsFileFolderLocation = 'PROD'
                             break
                         default:
-                            println "Warning! Environment is not specified. Default recipients are set up."
+                            println "Warning! Environment is not specified. Default recipients are set up." as java.lang.Object
                             recipientsFileFolderLocation = 'DEFAULT'
                             break
                     }

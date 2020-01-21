@@ -64,5 +64,3 @@ export const execute = async (instance: AxiosInstance, url: string,
 
 export const getResponseTag = (arr: string[] | undefined, tag: string | any) =>
   (arr) ? arr[tag][0] : null
-
-export const productResponseMask = (json: any) => json['S:Envelope']['S:Body'][0]['ns3:addProductResponse'][0].response[0]

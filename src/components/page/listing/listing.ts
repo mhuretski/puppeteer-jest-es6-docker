@@ -58,24 +58,27 @@ const selectors = {
 }
 
 class Listing extends Rest implements AddToBasketInterface {
-  static getListingSelectors = () => selectors;
+  static getListingSelectors = () => selectors
 
   async goToPDP(position = 0) {
     await super.clickOnPuppeteer(selectors.products.pdpLink, position)
   }
 
-  async goToPDPAndBack(position = 0, url?: string) {
+  async goToPDPAndBack(position = 0, url?: string, takeScreen = true) {
     try {
       await this.goToPDP(position)
-      await super.screenshot()
+      if (takeScreen) {
+        await super.screenshot()
+      }
     } finally {
-      await super.goBack(url)
+      await super.goBackIfNeeded(url)
     }
   }
 
   async addToBasket(position = 0) {
     const button = await super.getElementFromListPuppeteer(
       selectors.products.addToBasket.container, position)
+
     // noinspection ES6MissingAwait
     const clicked = this._page.waitFor(
       (selector: string, position: number) => {
@@ -192,6 +195,14 @@ class Listing extends Rest implements AddToBasketInterface {
     await super.waitForSpinnerToDisappear()
     const after = await super.getText(selectors.displayAmount)
     expect(before).not.toEqual(after)
+  }
+
+  async hasProductsContainer() {
+    await super.waitFor(selectors.products.container)
+  }
+
+  async hasNavigationContainer() {
+    await super.waitFor(selectors.navigation.container)
   }
 }
 

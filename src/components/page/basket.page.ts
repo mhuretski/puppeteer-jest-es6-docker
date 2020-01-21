@@ -59,7 +59,7 @@ const selectors = {
 }
 
 export default class Basket extends Rest {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 
   async openThis() {
     await super.openRelative('cart', logoS)

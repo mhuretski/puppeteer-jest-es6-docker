@@ -9,7 +9,7 @@ const selectors = {
 }
 
 export default class Breadcrumbs extends Rest {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 
   async clickOnCrumb(position = 0) {
     await (await super.getElementFromListPuppeteer(selectors.item, position))

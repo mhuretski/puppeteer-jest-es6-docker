@@ -42,14 +42,14 @@ const selectors = {
 }
 
 export default class HomePage extends Rest {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 
   async openPersonalManagerModal() {
     await super.click(selectors.FAQ.loggedContactManager)
   }
 
   async openBanner(position = 0) {
-    await super.clickPuppeteer(selectors.banner.scrollButtons(position))
+    await super.click(selectors.banner.scrollButtons(position))
     await super.clickOnPuppeteer(selectors.banner.itemButtons, position)
   }
 

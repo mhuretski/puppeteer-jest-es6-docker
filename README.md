@@ -19,10 +19,11 @@ npm test --ENV_TO_CHECK=<LOCAL> --BUILD_NUMBER=<BUILD_NUMBER> <SPEC> --CHECK=<UI
 <UI> - specifies flag how to check
 <SCREENSHOT> - specifies whether to make screenshots
 --debug - run non-headless
+--forceExit
 ```
 ##### Example
 ```bash
-npm test --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=100 spec --CHECK=UI --debug --SCREENSHOT=true
+npm test --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=100 spec --CHECK=UI --debug --SCREENSHOT=true --forceExit
 ```
 
 ##### In docker
@@ -40,7 +41,8 @@ docker create --name=LOCAL_TEST_SPEC \
   --BUILD_NUMBER=100 \
   SPEC \
   --CHECK=SPEC \
-  --SCREENSHOT=true
+  --SCREENSHOT=true \
+  --forceExit
 ```
 
 ##### IDE scope setup pattern:

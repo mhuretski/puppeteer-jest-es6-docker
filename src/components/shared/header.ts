@@ -27,7 +27,7 @@ const selectors = {
 }
 
 export default class Header extends Rest {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 
   async searchFor(text: string, timeout = defaultWaitTimer) {
     await super.emptyValue(selectors.searchInput)

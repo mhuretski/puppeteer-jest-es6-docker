@@ -20,7 +20,7 @@ const selectors = {
 }
 
 export default class Footer extends Rest {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 
   async typeTestEmail() {
     await super.type(selectors.emailInputField, testEmail)

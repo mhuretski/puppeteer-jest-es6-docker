@@ -7,5 +7,5 @@ const selectors = {
 
 export default class ArticleOneColumnPageWithCollapsingText
   extends Rest {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 }

@@ -20,7 +20,7 @@
                         "@const": "./src/app/const",
                         "@precondition": "./src/precondition",
                         "@pages": "./src/app/classes/pages.map.ts",
-                        "@soap": "./src/app/soap/soap.ts",
+                        "@soap": "./src/app/soap/soap.executor.ts",
                         "@actions": "./src/app/global/actions.ts",
                         "@interfaces": "./interfaces.d.ts",
                         "@soapData": "./tests/api/soap/data",

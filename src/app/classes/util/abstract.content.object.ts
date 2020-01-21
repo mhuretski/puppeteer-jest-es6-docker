@@ -71,7 +71,7 @@ export default class AbstractContentObject extends Checker {
     try {
       await super.screenshot(selector)
     } finally {
-      await this.goBack(url)
+      await this.goBackIfNeeded(url)
     }
   }
 
@@ -81,13 +81,17 @@ export default class AbstractContentObject extends Checker {
     return true
   }
 
-  async goBack(url?: string) {
+  async goBackIfNeeded(url?: string) {
     if ((await super.getURL()) !== url) {
-      await this._page.evaluate(() => window.history.back())
-      await super.waitForSpinnerToDisappear()
-      await super.waitForImages()
+      await this.goBack()
     }
     return true
+  }
+
+  async goBack() {
+    await this._page.evaluate(() => window.history.back())
+    await super.waitForSpinnerToDisappear()
+    await super.waitForImages()
   }
 
   async goForwardPuppeteer() {
@@ -110,7 +114,7 @@ export default class AbstractContentObject extends Checker {
       await this.click(selector, timeout)
       if (fn) fn()
     } finally {
-      await this.goBack(url)
+      await this.goBackIfNeeded(url)
     }
   }
 

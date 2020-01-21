@@ -17,7 +17,7 @@ const selectors = {
 }
 
 export default class AccountPage extends Rest {
-  static getSelectors = () => selectors;
+  static getSelectors = () => selectors
 
   async openPersonalManagerModal() {
     await super.waitFor(selectors.contactPersonalManagerButton)
