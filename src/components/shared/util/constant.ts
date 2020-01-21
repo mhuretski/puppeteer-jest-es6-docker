@@ -1,5 +1,5 @@
 'use strict'
-export const spinnerS = '#spinner'
+export const spinnerS = '.loader.loader_shutter.loader_detached.loader_fixed'
 export const pageContainerS = '#pageContainer'
 export const visiblePageS = '#app'
 export const leadS = '#leadId'

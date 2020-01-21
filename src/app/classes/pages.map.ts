@@ -25,6 +25,7 @@ import OrderRepository from '@components/atg/dynadmin/repository/order'
 import GoogleEmail from '@components/shared/email'
 import ProfileAdapterRepository
   from '@components/atg/dynadmin/repository/profile.adaptory'
+import Rest from '@classes/util/rest'
 
 interface PageParent {
   [name: string]: Page,
@@ -54,6 +55,7 @@ export interface PagesMap {
   checker: Checker,
   alert: Alert,
   breadcrumbs: Breadcrumbs,
+  rest: Rest,
   default: Page
 }
 
@@ -81,6 +83,7 @@ const pageObjects: PagesMap & PageParent = {
   checker: new Checker(),
   alert: new Alert(),
   breadcrumbs: new Breadcrumbs(),
+  rest: new Rest(),
   default: new Page(),
 }
 

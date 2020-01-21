@@ -1,10 +1,7 @@
 'use strict'
 import { MAIN_PAGE } from '@const/properties/constants'
 import Checker from './checker'
-import {
-  defaultSpinnerWaitToBePresentTimer,
-  defaultWaitTimer,
-} from '@const/global/timers'
+import { defaultWaitTimer } from '@const/global/timers'
 import {
   clickTimeoutExceptionMessage,
   itemOutOfBoundExceptionMessage,
@@ -24,7 +21,7 @@ import { ChromeHTMLElement, NodeListOf } from '@interfaces'
 
 export default class AbstractContentObject extends Checker {
   async open(path = MAIN_PAGE,
-          spinnerPresenceTimeout = defaultSpinnerWaitToBePresentTimer,
+          waitForSpinner = true,
           options: DirectNavigationOptions = { waitUntil: 'networkidle0' },
   ) {
     try {
@@ -32,15 +29,17 @@ export default class AbstractContentObject extends Checker {
     } catch (e) {
       console.log(`WARNING Couldn't wait until "${options.waitUntil} is fired trying to navigate to "${path}".`, e)
     }
-    await super.waitForSpinnerToDisappear(spinnerPresenceTimeout)
+    if (waitForSpinner) {
+      await super.waitForSpinnerToDisappear()
+    }
   }
 
   async openRelative(path: string,
           selectorToCheck?: string,
-          spinnerPresenceTimeout = defaultSpinnerWaitToBePresentTimer,
+          waitForSpinner = true,
   ) {
     const openPage = async () => {
-      await this.open(`${MAIN_PAGE}${path}`, spinnerPresenceTimeout)
+      await this.open(`${MAIN_PAGE}${path}`, waitForSpinner)
       if (selectorToCheck) await super.waitFor(selectorToCheck)
     }
     return openPage()
