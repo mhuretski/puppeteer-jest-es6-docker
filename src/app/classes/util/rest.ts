@@ -1,9 +1,38 @@
 'use strict'
 import AbstractContentObject from '@classes/util/abstract.content.object'
-import { defaultResponseWaitTimer } from '@const/global/timers'
+import { defaultResponseWaitTimer, defaultWaitTimer } from '@const/global/timers'
 import { Response } from 'puppeteer'
 
 export default class Rest extends AbstractContentObject {
+  async clickWithResponse(selector: string, waitSpinner = true,
+          ...rest: Array<string>) {
+    const rests: Array<Promise<any>> = []
+    rest.forEach(obj => rests.push(super.waitForResponseURLToContain(obj)))
+    await super.clickPuppeteer(selector)
+    await Promise.all(rests).catch(e => console.log(e))
+    if (waitSpinner) {
+      await super.waitForSpinnerToDisappear()
+    }
+  }
+
+  async selectWithResponse(selector: string,
+          position: number,
+          rests: Array<string> = [],
+          waitSpinner = true,
+          optionSelector = 'option',
+          triggerChangeEvent = true,
+          timeout = defaultWaitTimer) {
+    const restArr: Array<Promise<any>> = []
+    rests.forEach(
+      obj => restArr.push(super.waitForResponseURLToContain(obj)))
+    await super.selectByOptionPosition(
+      selector, position, optionSelector, triggerChangeEvent, timeout)
+    await Promise.all(rests).catch(e => console.log(e))
+    if (waitSpinner) {
+      await super.waitForSpinnerToDisappear()
+    }
+  }
+
   async clickAndWaitEndecaContent(selector: string,
           position = 0,
           errorMessage = 'Invalid Endeca response.',
