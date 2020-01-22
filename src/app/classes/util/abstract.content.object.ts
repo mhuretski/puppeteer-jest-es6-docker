@@ -526,14 +526,15 @@ export default class AbstractContentObject extends Checker {
           optionSelector = 'option',
           timeout = defaultWaitTimer) {
     await super.waitFor(selector)
-    const isChanged = await this._page.evaluate((selector, optionSelector) => {
-      const select = document.querySelector(selector)
-      const options = select.querySelectorAll(optionSelector)
-      if (options && position < options.length) {
-        options[position].selected = true
-        return true
-      }
-    }, selector, optionSelector)
+    const isChanged = await this._page.evaluate(
+      (selector, position, optionSelector) => {
+        const select = document.querySelector(selector)
+        const options = select.querySelectorAll(optionSelector)
+        if (options && position < options.length) {
+          options[position].selected = true
+          return true
+        }
+      }, selector, position, optionSelector)
     if (!isChanged) {
       throw new Error(selectExceptionMessage(selector, timeout))
     }
