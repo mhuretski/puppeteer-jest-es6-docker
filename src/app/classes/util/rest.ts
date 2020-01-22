@@ -9,7 +9,7 @@ export default class Rest extends AbstractContentObject {
     const rests: Array<Promise<any>> = []
     rest.forEach(obj => rests.push(super.waitForResponseURLToContain(obj)))
     await super.clickPuppeteer(selector)
-    await Promise.all(rests).catch(e => console.log(e))
+    await Promise.all(rests).catch(e => console.log('clickWithResponse', e))
     if (waitSpinner) {
       await super.waitForSpinnerToDisappear()
     }
@@ -27,7 +27,7 @@ export default class Rest extends AbstractContentObject {
       obj => restArr.push(super.waitForResponseURLToContain(obj)))
     await super.selectByOptionPosition(
       selector, position, optionSelector, triggerChangeEvent, timeout)
-    await Promise.all(rests).catch(e => console.log(e))
+    await Promise.all(rests).catch(e => console.log('selectWithResponse', e))
     if (waitSpinner) {
       await super.waitForSpinnerToDisappear()
     }
