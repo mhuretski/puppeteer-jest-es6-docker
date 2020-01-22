@@ -17,7 +17,7 @@ singlePack('products', () => {
     await LetuPage.clickWithResponse('.products-list-table-actions-button-block', true, 'checkout', 'checkoutDelivery')
 
     const selector = 'select[data-bind*="deliveryDates"]'
-    await LetuPage.selectWithResponse(selector, 3)
+    await LetuPage.selectWithResponse(selector, 3, ['updateShippingDetails'])
 
     const delivery = await LetuPage.getText('.checkout-form-text.font-bold')
     expect(delivery).toContain('Курьерская доставка')
