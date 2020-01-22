@@ -521,20 +521,24 @@ export default class AbstractContentObject extends Checker {
     await this._page.select(selector, option)
   }
 
-  async setSelectedOptionByPosition(selector: string,
+  async selectByOptionPosition(selector: string,
           position: number,
           optionSelector = 'option',
+          triggerChangeEvent = true,
           timeout = defaultWaitTimer) {
     await super.waitFor(selector)
     const isChanged = await this._page.evaluate(
-      (selector, position, optionSelector) => {
+      (selector, position, optionSelector, triggerChangeEvent) => {
         const select = document.querySelector(selector)
         const options = select.querySelectorAll(optionSelector)
         if (options && position < options.length) {
           options[position].selected = true
+          if (triggerChangeEvent) {
+            select.dispatchEvent(new Event('change'))
+          }
           return true
         }
-      }, selector, position, optionSelector)
+      }, selector, position, optionSelector, triggerChangeEvent)
     if (!isChanged) {
       throw new Error(selectExceptionMessage(selector, timeout))
     }
