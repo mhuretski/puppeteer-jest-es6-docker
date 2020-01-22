@@ -13,10 +13,16 @@ docker pull mhuretski/puppet-jest-es6
 ## start in nodejs locally
 ```bash
 npm test --ENV_TO_CHECK=<LOCAL> --BUILD_NUMBER=<BUILD_NUMBER> <SPEC> --CHECK=<UI> --SCREENSHOT=<SCREENSHOT> --debug
-<LOCAL> - local environment
+<LOCAL> - local environment (options: LOCAL DEV STAGE PROD)
 <BUILD_NUMBER> - specifies folder for output
-<SPEC> - specifies filename pattern to run
-<UI> - specifies flag how to check
+<SPEC> - specifies filename pattern to run 
+    options: 
+    - TEST - all patterns are executed
+    - SPEC UI PERF - only files with those names are executed
+    - API - pattern for files: api rest soap
+<UI> - specifies how to check, preconditions are different
+    for example, 'UI' is executed with browser, when API does not
+    options: 'UI', 'API', 'REST', 'SOAP', 'SPEC', 'PERF', 'TEST'
 <SCREENSHOT> - specifies whether to make screenshots
 --debug - run non-headless
 --forceExit

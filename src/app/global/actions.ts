@@ -227,7 +227,7 @@ export const singlePack = (name: string,
           case SPEC_TEST:
           case UI_TEST:
             beforeAll(async () => {
-              puppeteerPage = await browser.newPage()
+              await newPageWithNewContext()
               await puppeteerPage.setViewport(defaultViewport)
               isMobileDevice = false
               updatePuppeteerPageObjects(puppeteerPage)
