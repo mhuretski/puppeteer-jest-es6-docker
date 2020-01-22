@@ -521,6 +521,24 @@ export default class AbstractContentObject extends Checker {
     await this._page.select(selector, option)
   }
 
+  async selectByPositionInBrowser(selector: string,
+          position: number,
+          optionSelector = 'option',
+          timeout = defaultWaitTimer) {
+    await super.waitFor(selector)
+    const isChanged = await this._page.evaluate((selector, optionSelector) => {
+      const select = document.querySelector(selector)
+      const options = select.querySelectorAll(optionSelector)
+      if (options && position < options.length) {
+        options[position].selected = true
+        return true
+      }
+    }, selector, optionSelector)
+    if (!isChanged) {
+      throw new Error(selectExceptionMessage(selector, timeout))
+    }
+  }
+
   async getSelectValue(selector: string,
           option: number,
           optionSelector = 'option'): Promise<string> {
