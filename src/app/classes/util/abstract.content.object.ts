@@ -521,7 +521,7 @@ export default class AbstractContentObject extends Checker {
     await this._page.select(selector, option)
   }
 
-  async selectByPositionInBrowser(selector: string,
+  async setSelectedOptionByPosition(selector: string,
           position: number,
           optionSelector = 'option',
           timeout = defaultWaitTimer) {
