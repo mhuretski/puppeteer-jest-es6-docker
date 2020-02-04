@@ -43,6 +43,7 @@ import {
 } from '@const/global/timers'
 import { startErrorExceptionMessage } from '@const/global/error.messages'
 import { CHECK } from '@const/global/flags'
+import { NEW_LINE, TS_TRACE_FILTER } from '@components/shared/util/constant'
 const stackTrace = require('stack-trace')
 
 let puppeteerPage: PuppeteerPage
@@ -370,7 +371,12 @@ export const test = (name: string, fn: FunctionWithTestName,
     try {
       await fn()
     } catch (e) {
-      throw new Error(e.toString().slice(0, 1000))
+      const result = e.message + NEW_LINE + e.stack
+        .split(NEW_LINE)
+        .filter((e: any) => e.includes(TS_TRACE_FILTER))
+        .join(NEW_LINE)
+        .slice(0, 1000)
+      throw new Error(result)
     }
   }
 
