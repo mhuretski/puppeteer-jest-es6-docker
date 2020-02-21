@@ -9,6 +9,8 @@ import {
   defaultPresenceWaitTimer,
   defaultSpinnerWaitTimer,
   defaultWaitTimer,
+  defaultSpinnerWaitToBePresentTimer,
+  defaultAbsenceWaitTimer,
 } from '@const/global/timers'
 import { waitToBeExceptionMessage } from '@const/global/error.messages'
 import { buildSpecificTempDir } from '@const/global/paths'
@@ -52,9 +54,10 @@ export default class Waiter extends Page {
   }
 
   async waitForSpinnerToDisappear(
-          timeout = defaultPresenceWaitTimer) {
-    await this.waitElementToDisappear(spinnerS, timeout)
-    await this.waitInNodeApp(timeout)
+          presenceTimeout = defaultSpinnerWaitToBePresentTimer,
+          absenceTimeout = defaultSpinnerWaitTimer) {
+    await this.waitElementToDisappear(spinnerS, presenceTimeout, absenceTimeout)
+    await this.waitInNodeApp(presenceTimeout)
   }
 
   async waitElementPresence(element: string,
@@ -67,7 +70,7 @@ export default class Waiter extends Page {
 
   async waitElementToDisappear(element: string,
           presenceTimeout = defaultPresenceWaitTimer,
-          absenceTimeout = defaultSpinnerWaitTimer) {
+          absenceTimeout = defaultAbsenceWaitTimer) {
     try {
       await this.waitElementPresence(element, presenceTimeout)
     } catch (e) {

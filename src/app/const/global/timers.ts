@@ -6,6 +6,7 @@ export const defaultResponseWaitTimer = 30000
 export const defaultAnimationWaitTimer = 500
 export const defaultDownloadWaitTimer = 500
 export const defaultPresenceWaitTimer = 200
+export const defaultAbsenceWaitTimer = 4000
 export const defaultToastWaitTimer = 6000
 export const defaultSpinnerWaitToBePresentTimer = 500
 export const defaultSpinnerWaitTimer = 14000

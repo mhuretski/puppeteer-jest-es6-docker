@@ -11,7 +11,8 @@ import puppeteer, { Browser } from 'puppeteer'
 import { CHECK } from '@const/global/flags'
 import { uiProps } from '@config/puppet.settings'
 
-global.puppBrowser = puppeteer.launch(uiProps)
+global.puppBrowser = (typeof global.puppBrowser === 'string') ?
+  puppeteer.launch(uiProps) : global.puppBrowser
 
 export let browser: Browser
 export const checkBrowserConnectionBeforeAll =
@@ -29,6 +30,7 @@ beforeAll(async () => {
     case UI_LAUNCH:
     case TEST_LAUNCH:
       expect.extend({ toMatchImageSnapshot })
+      // @ts-ignore
       browser = await global.puppBrowser
       checkBrowserConnectionBeforeAll(browser, 'jest.settings')
       break
@@ -38,4 +40,3 @@ beforeAll(async () => {
       break
   }
 })
-
