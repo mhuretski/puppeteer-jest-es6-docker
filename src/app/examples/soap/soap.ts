@@ -10,7 +10,7 @@ import {
 } from '@soap'
 import request from '@soapData/description.error'
 import { SOAP } from '@const/properties/constants'
-import { productResponseMask } from '@app/soap/masks'
+import { productResponseMask } from '@soapData/masks'
 
 /**
  * Example for single soap run

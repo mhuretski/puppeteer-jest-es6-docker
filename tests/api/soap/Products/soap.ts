@@ -1,5 +1,5 @@
 'use strict'
-import { productResponseMask } from '@soap'
+import { productResponseMask } from '@soapData/masks'
 import { DataSoap, multiSoapTest } from '@app/global/actions'
 import request from '@soapData/description.error'
 import { SOAP } from 'src/app/const/properties/constants'

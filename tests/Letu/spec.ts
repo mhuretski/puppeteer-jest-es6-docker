@@ -21,8 +21,13 @@ singlePack('products', () => {
 
     const delivery = await LetuPage.getText('.checkout-form-text.font-bold')
     expect(delivery).toContain('Курьерская доставка')
-    const date = await LetuPage.getText(selector)
-    expect(date).toContain('27.01.2020')
+    const siteDates = await LetuPage.getText(selector)
+
+    const parsedDate = new Date().toLocaleDateString().split('/')
+    const day = parseInt(parsedDate[1]) + 1
+    const nextDay = `${(day.toString().length === 1) ? ('0' + day) : day}.${(parsedDate[0].length === 1) ? ('0' + parsedDate[0]) : parsedDate[0]}.${parsedDate[2]}`
+
+    expect(siteDates).toContain(nextDay)
 
     await browser.close()
   })
