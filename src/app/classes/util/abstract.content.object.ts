@@ -7,7 +7,12 @@ import {
   itemOutOfBoundExceptionMessage,
   selectExceptionMessage,
 } from '@const/global/error.messages'
-import { Cookie, DirectNavigationOptions, ElementHandle } from 'puppeteer'
+import {
+  Cookie,
+  DirectNavigationOptions,
+  ElementHandle,
+  SetCookie,
+} from 'puppeteer'
 import { ENTER } from '@const/global/keyboard.keys'
 import { buildSpecificTempDir } from '@const/global/paths'
 import {
@@ -97,7 +102,7 @@ export default class AbstractContentObject extends Checker {
     await this._page.goForward()
   }
 
-  async setCookie(...cookies: Cookie[]) {
+  async setCookie(...cookies: SetCookie[]) {
     await this._page.setCookie(...cookies)
   }
 
