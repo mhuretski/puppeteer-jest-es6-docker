@@ -264,6 +264,11 @@ export default class AbstractContentObject extends Checker {
     }
   }
 
+  async focus(selector: string, timeout = defaultWaitTimer) {
+    await super.waitFor(selector, timeout)
+    await this._page.focus(selector)
+  }
+
   async clickPuppeteer(selector: string, timeout = defaultWaitTimer) {
     if (super.isXpath(selector)) {
       const element = (await this._page.$x(selector)).shift()
