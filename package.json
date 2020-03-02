@@ -21,7 +21,8 @@
     },
     "scripts": {
         "test": "jest",
-        "check-types": "tsc"
+        "check-types": "tsc",
+        "local": "npm test --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=1 spec --CHECK=SPEC --debug --SCREENSHOT=false"
     },
     "jest-junit": {
         "suiteName": "Test Execution",
