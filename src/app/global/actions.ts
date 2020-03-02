@@ -43,7 +43,7 @@ import {
 } from '@const/global/timers'
 import { startErrorExceptionMessage } from '@const/global/error.messages'
 import { CHECK } from '@const/global/flags'
-import { NEW_LINE, TS_TRACE_FILTER } from '@const/global/paths'
+import { NEW_LINE, TS_TRACE_FILTER } from '@const/global/constants'
 const stackTrace = require('stack-trace')
 
 let puppeteerPage: PuppeteerPage

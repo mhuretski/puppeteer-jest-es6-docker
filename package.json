@@ -53,6 +53,7 @@
         "@babel/preset-typescript": "^7.8.3",
         "@babel/runtime": "^7.8.4",
         "@jest/core": "^24.9.0",
+        "@types/dateformat": "^3.0.1",
         "@types/eslint": "^6.1.8",
         "@types/jest": "^24.9.1",
         "@types/jest-image-snapshot": "^2.11.1",
@@ -82,6 +83,7 @@
     "dependencies": {
         "acorn": "^7.1.1",
         "axios": "^0.19.2",
+        "dateformat": "^3.0.3",
         "https": "^1.0.0",
         "jest": "^24.9.0",
         "jest-html-reporter": "^2.8.0",

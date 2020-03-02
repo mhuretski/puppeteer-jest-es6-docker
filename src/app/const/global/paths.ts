@@ -7,6 +7,3 @@ const setResultFolder = (folder: string) =>
 
 export const buildSpecificTempDir = setResultFolder(tempDir)
 export const buildSpecificDiffDir = setResultFolder(imagesDir)
-
-export const NEW_LINE = '\n'
-export const TS_TRACE_FILTER = '.ts:'

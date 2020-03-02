@@ -1,6 +1,7 @@
 import { singlePack, test } from '@actions'
 import po from '@pages'
 import { browser } from '@config/jest.settings'
+import { CURRENT_DATE } from '@const/global/constants'
 
 singlePack('products', () => {
   test('letu test', async () => {
@@ -23,11 +24,14 @@ singlePack('products', () => {
     expect(delivery).toContain('Курьерская доставка')
     const siteDates = await LetuPage.getText(selector)
 
-    const parsedDate = new Date().toLocaleDateString().split('/')
-    const day = parseInt(parsedDate[1]) + 1
+    const date = new Date()
+    const parsedDate = date.toLocaleDateString().split('/')
+    const day = parseInt(parsedDate[1])
     const nextDay = `${(day.toString().length === 1) ? ('0' + day) : day}.${(parsedDate[0].length === 1) ? ('0' + parsedDate[0]) : parsedDate[0]}.${parsedDate[2]}`
 
-    expect(siteDates).toContain(nextDay)
+    expect(CURRENT_DATE).toEqual(nextDay)
+
+    expect(siteDates).toContain(CURRENT_DATE)
 
     await browser.close()
   })
