@@ -4,7 +4,7 @@ import { browser } from '@config/jest.settings'
 
 singlePack('products', () => {
   test('letu test', async () => {
-    const LetuPage = po.rest
+    const LetuPage = po?.rest
 
     const path = 'https://www.letu.ru/product/l-etual-podarochnaya-korobka-l-etual-srednyaya/60800005/sku/75200005'
     await LetuPage.open(path, true, undefined)
