@@ -31,6 +31,10 @@ npm test --ENV_TO_CHECK=<LOCAL> --BUILD_NUMBER=<BUILD_NUMBER> <SPEC> --CHECK=<UI
 ```bash
 npm test --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=100 spec --CHECK=UI --debug --SCREENSHOT=true --forceExit
 ```
+##### Simplified Example
+```bash
+npm run local
+```
 
 ##### In docker
 ```bash
