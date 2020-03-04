@@ -8,7 +8,7 @@
             "reservedTestUsers": [],
             "puppBrowser": "browser"
         },
-        "testRegex": "/tests/.*(api|ui|soap|spec|rest|perf)\\.[jt]sx?$",
+        "testRegex": "/tests/.*(api|ui|soap|spec|rest|perf)\\.ts$",
         "setupFilesAfterEnv": [
             "<rootDir>/src/app/config/jest.settings.ts"
         ],
