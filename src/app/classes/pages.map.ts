@@ -26,6 +26,7 @@ import GoogleEmail from '@components/shared/email'
 import ProfileAdapterRepository
   from '@components/atg/dynadmin/repository/profile.adaptory'
 import Rest from '@classes/util/rest'
+import LetuHeader from '@components/letu/shared/header'
 
 interface PageParent {
   [name: string]: Page,
@@ -56,7 +57,8 @@ export interface PagesMap {
   alert: Alert,
   breadcrumbs: Breadcrumbs,
   rest: Rest,
-  default: Page
+  default: Page,
+  letuHeader: LetuHeader
 }
 
 const pageObjects: PagesMap & PageParent = {
@@ -85,6 +87,7 @@ const pageObjects: PagesMap & PageParent = {
   breadcrumbs: new Breadcrumbs(),
   rest: new Rest(),
   default: new Page(),
+  letuHeader: new LetuHeader(),
 }
 
 export default pageObjects

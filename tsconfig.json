@@ -8,6 +8,9 @@
         "noEmit": true,
         // Enable strictest settings like strictNullChecks & noImplicitAny.
         "strict": true,
+        /* Parse in strict mode and emit "use strict" for each source file. */
+        "alwaysStrict": true,
+
         // Import non-ES modules as default imports.
         "esModuleInterop": true,
         "moduleResolution": "node",

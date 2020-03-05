@@ -2,7 +2,7 @@
 import { StartProperties } from '@interfaces'
 
 const CONFIG: StartProperties = {
-  MAIN_PAGE: 'http://localhost:3000/',
+  MAIN_PAGE: 'http://letu.ru/',
   defaultLoginValue: 'test-email@test.com',
   defaultPasswordValue: 'test-email',
   DYN_ADMIN: {
