@@ -4,7 +4,7 @@ import LOCAL_CONFIG from './local.props'
 import DEV_CONFIG from './dev.props'
 import STAGE_CONFIG from './stage.props'
 import PROD_CONFIG from './prod.props'
-import { startErrorExceptionMessage } from '@const/global/error.messages'
+import { startErrorExceptionMessage } from '@const/global/errors'
 import { ENV_TO_CHECK } from '@const/global/flags'
 import { StartProperties } from '@interfaces'
 

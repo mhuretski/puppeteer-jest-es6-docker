@@ -41,9 +41,13 @@ import {
   defaultTimeout,
   defaultWaitTimer,
 } from '@const/global/timers'
-import { startErrorExceptionMessage } from '@const/global/error.messages'
+import {
+  errorInPreviousTest,
+  startErrorExceptionMessage,
+  errorResult,
+} from '@const/global/errors'
 import { CHECK } from '@const/global/flags'
-import { NEW_LINE, TS_TRACE_FILTER } from '@const/global/constants'
+
 const stackTrace = require('stack-trace')
 
 let puppeteerPage: PuppeteerPage
@@ -361,6 +365,7 @@ export type FunctionWithTestName = {
   testName?: string;
 }
 
+let isPassed: boolean = false
 /*
  * Should be used to execute non-UI specific tests.
  */
@@ -369,14 +374,11 @@ export const test = (name: string, fn: FunctionWithTestName,
   fn.testName = name
   const doneTest = async () => {
     try {
+      isPassed = false
       await fn()
+      isPassed = true
     } catch (e) {
-      const result = e.message + NEW_LINE + e.stack
-        .split(NEW_LINE)
-        .filter((e: any) => e.includes(TS_TRACE_FILTER))
-        .join(NEW_LINE)
-        .slice(0, 1000)
-      throw new Error(result)
+      throw new Error(errorResult(e))
     }
   }
 
@@ -428,4 +430,36 @@ export const exist = (name: string,
   }
 
   ui(name, fn, testTimeout)
+}
+
+/*
+ * Works same way as test, but fails if previous test fails
+ */
+export const testSequence = (name: string, fn: FunctionWithTestName,
+        timeout = defaultTimeout) => {
+  const throwError = () => {
+    throw new Error(errorInPreviousTest)
+  }
+
+  if (isPassed) {
+    test(name, fn, timeout)
+  } else {
+    test(name, throwError, timeout)
+  }
+}
+
+/*
+ * Works same way as ui test, but fails if previous test fails
+ */
+export const uiSequence = (name: string, fn: FunctionWithTestName,
+        timeout = defaultTimeout) => {
+  const throwError = () => {
+    throw new Error(errorInPreviousTest)
+  }
+
+  if (isPassed) {
+    ui(name, fn, timeout)
+  } else {
+    test(name, throwError, timeout)
+  }
 }

@@ -1,6 +1,6 @@
 'use strict'
 import SITE from '@config/site/mapping'
-import { userAlreadyTakenExceptionMessage, userNotFoundExceptionMessage } from '@const/global/error.messages'
+import { userAlreadyTakenExceptionMessage, userNotFoundExceptionMessage } from '@const/global/errors'
 import { ReserveUser, UpdatedGlobal, User } from '@interfaces'
 import { defaultLoginValue, defaultPasswordValue } from '@const/properties/constants'
 

@@ -4,7 +4,7 @@ import { screenExpectOption } from '@config/screenshot.settings'
 import { defaultAnimationWaitTimer, defaultWaitTimer } from '@const/global/timers'
 import { pageContainerS } from '@components/shared/util/constant'
 import { SCREENSHOT } from '@const/global/flags'
-import { itemOutOfBoundExceptionMessage } from '@const/global/error.messages'
+import { itemOutOfBoundExceptionMessage } from '@const/global/errors'
 
 export default class Checker extends Waiter {
   it(args: any) {

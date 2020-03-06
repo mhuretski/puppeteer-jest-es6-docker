@@ -6,7 +6,7 @@ import {
   clickTimeoutExceptionMessage,
   itemOutOfBoundExceptionMessage,
   selectExceptionMessage,
-} from '@const/global/error.messages'
+} from '@const/global/errors'
 import {
   Cookie,
   DirectNavigationOptions,
@@ -27,7 +27,7 @@ import { ChromeHTMLElement, NodeListOf } from '@interfaces'
 export default class AbstractContentObject extends Checker {
   async open(path = MAIN_PAGE,
           waitForSpinner = true,
-          options: DirectNavigationOptions = { waitUntil: 'networkidle0' },
+          options: DirectNavigationOptions = { waitUntil: 'networkidle2' },
   ) {
     try {
       await this._page.goto(path, options)

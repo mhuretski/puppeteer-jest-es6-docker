@@ -12,7 +12,7 @@ import {
   defaultSpinnerWaitToBePresentTimer,
   defaultAbsenceWaitTimer,
 } from '@const/global/timers'
-import { waitToBeExceptionMessage } from '@const/global/error.messages'
+import { waitToBeExceptionMessage } from '@const/global/errors'
 import { buildSpecificTempDir } from '@const/global/paths'
 import { readDir } from 'src/app/util/writer'
 import { LoadEvent, Response } from 'puppeteer'
