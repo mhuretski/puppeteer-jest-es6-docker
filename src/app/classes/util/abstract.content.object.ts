@@ -271,6 +271,7 @@ export default class AbstractContentObject extends Checker {
 
   async clickPuppeteer(selector: string, timeout = defaultWaitTimer) {
     if (super.isXpath(selector)) {
+      await this.waitForXPath(selector, timeout)
       const element = (await this._page.$x(selector)).shift()
       if (element) {
         await element.click()
@@ -278,7 +279,7 @@ export default class AbstractContentObject extends Checker {
         throw new Error(clickTimeoutExceptionMessage(selector, timeout))
       }
     } else {
-      await super.waitFor(selector, timeout)
+      await super.waitForElement(selector, timeout)
       await this._page.click(selector)
     }
   }
