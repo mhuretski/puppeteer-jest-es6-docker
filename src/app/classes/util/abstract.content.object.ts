@@ -608,6 +608,10 @@ export default class AbstractContentObject extends Checker {
     await this._page.setOfflineMode(enabled)
   }
 
+  async setUserAgent(userAgent: string) {
+    await this._page.setUserAgent(userAgent)
+  }
+
   fileLinuxPathToChromePath(path: string) {
     return `file://${path}`
   }
