@@ -1,8 +1,9 @@
-import AbstractContentObject from '@classes/util/abstract.content.object'
+import Helper from '@classes/util/helper'
 import { defaultResponseWaitTimer, defaultWaitTimer } from '@const/global/timers'
 import { Response } from 'puppeteer'
 
-export default class Rest extends AbstractContentObject {
+
+export default class Rest extends Helper {
   async clickWithResponse(selector: string, waitSpinner = true,
           ...rest: Array<string>) {
     const rests: Array<Promise<any>> = []
@@ -50,7 +51,7 @@ export default class Rest extends AbstractContentObject {
   async getOrderId(): Promise<string> {
     const cartSummary = await this.waitShoppingCartSummaryResponse()
     const responseJson: any = await cartSummary.json()
-    return responseJson.cartInfo.data.shoppingCart.id
+    return responseJson?.cartInfo?.data?.shoppingCart?.id
   }
 
   async isErrorResponse(response: Promise<Response>) {

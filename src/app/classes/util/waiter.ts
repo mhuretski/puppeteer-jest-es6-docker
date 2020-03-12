@@ -48,8 +48,8 @@ export default class Waiter extends Page {
     return filename
   }
 
-  async waitForAnimation() {
-    await this.waitInNodeApp(defaultAnimationWaitTimer)
+  async waitForAnimation(timeout = defaultAnimationWaitTimer) {
+    await this.waitInNodeApp(timeout)
   }
 
   async waitForSpinnerToDisappear(
@@ -59,34 +59,46 @@ export default class Waiter extends Page {
     await this.waitInNodeApp(presenceTimeout)
   }
 
-  async waitElementPresence(element: string,
+  async waitElementPresence(selector: string,
           timeout = defaultPresenceWaitTimer) {
     await this._page.waitFor(
       (selector: string) => document.querySelector(selector),
       { timeout: timeout },
-      element)
+      selector)
   }
 
-  async waitElementToDisappear(element: string,
+  async waitElementToDisappear(selector: string,
           presenceTimeout = defaultPresenceWaitTimer,
           absenceTimeout = defaultAbsenceWaitTimer) {
     try {
-      await this.waitElementPresence(element, presenceTimeout)
+      await this.waitElementPresence(selector, presenceTimeout)
     } catch (e) {
       // Expected
     }
     try {
-      await this.waitElementAbsence(element, absenceTimeout)
+      await this.waitElementAbsence(selector, absenceTimeout)
     } catch (e) {
-      throw new Error(`Waiting for "${element}" to disappear exceeded timeout ${absenceTimeout} milliseconds.`)
+      throw new Error(`Waiting for "${selector}" to disappear exceeded timeout ${absenceTimeout} milliseconds.`)
     }
   }
 
-  async waitElementAbsence(element: string, timeout = defaultSpinnerWaitTimer) {
-    return this._page.waitFor(
-      (selector: string) => !document.querySelector(selector),
-      { timeout: timeout },
-      element)
+  async waitElementAbsence(selector: string,
+          timeout = defaultSpinnerWaitTimer) {
+    if (this.isXpath(selector)) {
+      return this._page.waitFor(
+        (selector: string) => !document.evaluate(selector,
+          document,
+          null,
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+          null).singleNodeValue,
+        { timeout: timeout },
+        selector)
+    } else {
+      return this._page.waitFor(
+        (selector: string) => !document.querySelector(selector),
+        { timeout: timeout },
+        selector)
+    }
   }
 
   async waitForImages(timeout = defaultImagesWaitTimer) {
@@ -113,22 +125,6 @@ export default class Waiter extends Page {
     return this._page.waitFor(selector, { timeout: timeout })
   }
 
-  async waitToBeInvisible(selector: string,
-          timeout = defaultAnimationWaitTimer) {
-    return this.waitToBe(false,
-      selector,
-      this.isVisible,
-      timeout)
-  }
-
-  async waitToBeVisible(selector: string,
-          timeout = defaultAnimationWaitTimer) {
-    return this.waitToBe(true,
-      selector,
-      this.isVisible,
-      timeout)
-  }
-
   async waitToBe(expectedValue: boolean,
           selector: string,
           checkFunction: (selector: string) => boolean | Promise<boolean>,
@@ -142,11 +138,6 @@ export default class Waiter extends Page {
       const result = await checkFunction.call(this, selector)
       if (result === expectedValue) return
     }
-  }
-
-  async isVisibleWithAnimationTimer(selector: string): Promise<boolean> {
-    await this.waitForAnimation()
-    return this.isVisible(selector)
   }
 
   async waitForTextToBe(text: string, selector: string,
@@ -182,84 +173,6 @@ export default class Waiter extends Page {
     return this._page.waitForResponse(response =>
       response.url().includes(text),
     { timeout: timeout })
-  }
-
-  async isInvisible(selector: string): Promise<boolean> {
-    return !(await this.isVisible(selector))
-  }
-
-  async isVisible(selector: string): Promise<boolean> {
-    return this._page.evaluate(({ selector }) => {
-      const existsAtPosition =
-        (position: { x: number, y: number }) => {
-          let pointContainer: any =
-            document.elementFromPoint(position.x, position.y)
-          do {
-            if (pointContainer === elem) {
-              return true
-            }
-            pointContainer = pointContainer.parentNode
-          } while (pointContainer)
-        }
-      const positionOffsetPercent = (x: number, y: number) => {
-        return {
-          x: elemBounds.x + elemOffsets.x * x,
-          y: elemBounds.y + elemOffsets.y * y,
-        }
-      }
-
-      const elem: HTMLElement = document.querySelector(selector)
-      if (!(elem instanceof Element)) {
-        return false
-      }
-      const style = getComputedStyle(elem)
-      if (style) {
-        if (style.display === 'none') {
-          return false
-        }
-        if (style.visibility !== 'visible') {
-          return false
-        }
-        if (style.opacity && parseFloat(style.opacity) < 0.1) {
-          return false
-        }
-      }
-      if (elem.offsetWidth + elem.offsetHeight +
-        elem.getBoundingClientRect().height +
-        elem.getBoundingClientRect().width === 0) {
-        return false
-      }
-      const elemBounds = {
-        x: elem.getBoundingClientRect().left,
-        y: elem.getBoundingClientRect().top,
-      }
-      const elemOffsets = {
-        x: elem.offsetWidth,
-        y: elem.offsetHeight,
-      }
-      const elemCenter = positionOffsetPercent(0.5, 0.5)
-      if (elemCenter.x < 0) {
-        return false
-      }
-      if (elemCenter.x > (document.documentElement.clientWidth ||
-        window.innerWidth)) {
-        return false
-      }
-      if (elemCenter.y < 0) {
-        return false
-      }
-      if (elemCenter.y > (document.documentElement.clientHeight ||
-        window.innerHeight)) {
-        return false
-      }
-      let exists = existsAtPosition(elemCenter)
-      if (exists) return exists
-      exists = existsAtPosition(positionOffsetPercent(0.75, 0.75))
-      if (exists) return exists
-      exists = existsAtPosition(positionOffsetPercent(0.25, 0.25))
-      if (exists) return exists
-      return false
-    }, { selector })
   }
 
   isXpath(selector: string) {

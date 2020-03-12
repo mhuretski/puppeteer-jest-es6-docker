@@ -1,4 +1,4 @@
-import AbstractContentObject from '@classes/util/abstract.content.object'
+import Helper from '@classes/util/helper'
 import { DYN_ADMIN } from '@const/properties/constants'
 
 const selectors = {
@@ -8,7 +8,7 @@ const selectors = {
   results: 'pre code',
 }
 
-export default class DynAdmin extends AbstractContentObject {
+export default class DynAdmin extends Helper {
   static getSelectors = () => selectors
 
   async open(path = DYN_ADMIN.PROD_SCHEME_URL) {

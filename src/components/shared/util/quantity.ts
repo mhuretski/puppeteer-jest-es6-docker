@@ -1,5 +1,5 @@
 import { BACKSPACE, DELETE, LEFT, RIGHT } from '@const/global/keyboard.keys'
-import AbstractContentObject from '@classes/util/abstract.content.object'
+import Helper from '@classes/util/helper'
 
 const quantity = {
   container: 'qtyId',
@@ -11,7 +11,7 @@ const quantity = {
 export default quantity
 
 export const itemsToAdd = async (
-  page: AbstractContentObject,
+  page: Helper,
   amount: number,
   position: number,
   quantityInputSelector: string) => {

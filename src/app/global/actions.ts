@@ -194,7 +194,7 @@ export const multiPack = (name: string, fn: () => void,
             })
             break
           case PERF_TEST:
-            throw new Error('multiPack can\'t be user for Performance. Use performancePack or singlePack instead.')
+            throw new Error('multiPack can\'t be used for Performance. Use performancePack or singlePack instead.')
           case API_TEST:
           default:
             break

@@ -1,11 +1,8 @@
-import Waiter from './waiter'
-import { screenExpectOption } from '@config/screenshot.settings'
+import Helper from '@classes/util/helper'
 import { defaultAnimationWaitTimer, defaultWaitTimer } from '@const/global/timers'
-import { pageContainerS } from '@components/shared/util/constant'
-import { SCREENSHOT } from '@const/global/flags'
-import { itemOutOfBoundExceptionMessage } from '@const/global/errors'
 
-export default class Checker extends Waiter {
+
+export default class Checker extends Helper {
   it(args: any) {
     return expect(args)
   }
@@ -13,33 +10,6 @@ export default class Checker extends Waiter {
   async its(val: any) {
     await this.screenshot()
     return expect(val)
-  }
-
-  async screenshot(selector = pageContainerS, position = 0) {
-    if (SCREENSHOT) {
-      await super.waitForSpinnerToDisappear()
-      await super.waitForImages()
-      const screenshot = await this._screenshotElement(selector, position)
-      // @ts-ignore
-      expect(screenshot).toMatchImageSnapshot(screenExpectOption)
-      return true
-    }
-  }
-
-  async _screenshotElement(selector: string | undefined, position = 0) {
-    let screen
-    if (selector) {
-      await super.waitFor(selector)
-      const elements = await this._page.$$(selector)
-      if (position >= elements.length) {
-        throw new Error(
-          itemOutOfBoundExceptionMessage(selector, position, elements.length))
-      }
-      screen = await elements[position].screenshot()
-    } else {
-      screen = this._page.screenshot()
-    }
-    return screen
   }
 
   async toBeGreaterThan(

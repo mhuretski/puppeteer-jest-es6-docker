@@ -2,6 +2,7 @@ import { Browser, Page as PuppeteerPage } from 'puppeteer'
 import { currentDevice, setDevice, updatePuppeteerPageObjects } from '@actions'
 import { defaultViewport } from '@config/puppet.settings'
 
+
 export default class Page {
   // @ts-ignore
   _page: PuppeteerPage

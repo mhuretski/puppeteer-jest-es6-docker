@@ -1,6 +1,6 @@
 import { MAIN_PAGE } from '@const/properties/constants'
-import Checker from './checker'
 import { defaultWaitTimer } from '@const/global/timers'
+import Snapshot from '@classes/util/snapshot'
 import {
   clickTimeoutExceptionMessage,
   itemOutOfBoundExceptionMessage,
@@ -23,7 +23,8 @@ import { setDownloadProperties } from '@config/puppet.settings'
 import path from 'path'
 import { ChromeHTMLElement, NodeListOf } from '@interfaces'
 
-export default class AbstractContentObject extends Checker {
+
+export default class Helper extends Snapshot {
   async open(path = MAIN_PAGE,
           waitForSpinner = true,
           waitUntil: LoadEvent = 'networkidle2',
@@ -486,11 +487,11 @@ export default class AbstractContentObject extends Checker {
     }
   }
 
-  async scrollDown() {
+  async scrollDown(distance = 100) {
     await this._page.evaluate(`(async () => {
       await new Promise((resolve, reject) => {
         let totalHeight = 0
-        const distance = 100
+        const distance = ${distance}
         const timer = setInterval(() => {
           const scrollHeight = document.body.scrollHeight
           window.scrollBy(0, distance)
@@ -502,7 +503,7 @@ export default class AbstractContentObject extends Checker {
           }
         }, 100)
       })
-    })()`)
+    })()`, distance)
   }
 
   async type(selector: string, text: string, timeout = defaultWaitTimer) {
