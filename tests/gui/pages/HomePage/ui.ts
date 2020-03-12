@@ -1,4 +1,3 @@
-'use strict'
 import pages from '@pages'
 import { isMobileDevice, multiPack, ui } from '@actions'
 import HomePage from '@components/page/home.page'

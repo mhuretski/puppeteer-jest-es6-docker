@@ -1,4 +1,3 @@
-'use strict'
 import devices, { Device } from 'puppeteer/DeviceDescriptors'
 import mobiles from '@config/devices/pool/mobile.props'
 import desktop from '@config/devices/pool/desktop.props'

@@ -1,4 +1,3 @@
-'use strict'
 import pages from '@pages'
 import { multiPack, singlePack, ui } from '@actions'
 

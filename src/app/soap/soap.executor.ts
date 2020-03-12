@@ -1,4 +1,3 @@
-'use strict'
 import axios, { AxiosInstance, AxiosResponse } from 'axios/index'
 import https from 'https'
 import fs from 'fs'

@@ -1,4 +1,3 @@
-'use strict'
 import { alertS } from '@components/shared/util/constant'
 import Rest from '@classes/util/rest'
 import {

@@ -1,4 +1,3 @@
-'use strict'
 /*
  * http://w3c.github.io/uievents/tools/key-event-viewer
  * key codes from keyboard

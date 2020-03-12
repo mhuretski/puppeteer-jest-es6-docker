@@ -1,4 +1,3 @@
-'use strict'
 import { MAIN_PAGE } from '@const/properties/constants'
 import Checker from './checker'
 import { defaultWaitTimer } from '@const/global/timers'

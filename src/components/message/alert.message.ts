@@ -1,4 +1,3 @@
-'use strict'
 import Rest from '@classes/util/rest'
 
 const container = '#alertType'

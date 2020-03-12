@@ -1,4 +1,3 @@
-'use strict'
 import Page from '@classes/util/page'
 import {
   NETWORK_CONNECTIONS,

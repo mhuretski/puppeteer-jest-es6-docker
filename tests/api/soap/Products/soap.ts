@@ -1,4 +1,3 @@
-'use strict'
 import { productResponseMask } from '@soapData/masks'
 import { DataSoap, multiSoapTest } from '@app/global/actions'
 import request from '@soapData/description.error'

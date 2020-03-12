@@ -1,4 +1,3 @@
-'use strict'
 // list of mobile devices is configured here
 // node_modules/puppeteer/node6/lib/DeviceDescriptors.js
 const mobiles: string[] = [

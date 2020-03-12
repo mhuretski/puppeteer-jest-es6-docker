@@ -1,4 +1,3 @@
-'use strict'
 import quantity, { itemsToAdd } from '@components/shared/util/quantity'
 import { defaultWaitTimer } from '@const/global/timers'
 import { buildSpecificTempDir } from '@const/global/paths'

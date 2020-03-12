@@ -1,4 +1,3 @@
-'use strict'
 import { ElementHandle } from 'puppeteer'
 import quantity from '@components/shared/util/quantity'
 import { leadS } from '@components/shared/util/constant'

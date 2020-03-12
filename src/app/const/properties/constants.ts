@@ -1,4 +1,3 @@
-'use strict'
 import SITE from '@config/site/mapping'
 
 export const MAIN_PAGE = SITE.MAIN_PAGE

@@ -1,4 +1,3 @@
-'use strict'
 import { defaultWaitTimer } from '@const/global/timers'
 import { logoS } from '@components/shared/util/constant'
 import Rest from '@classes/util/rest'

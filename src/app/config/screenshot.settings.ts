@@ -1,4 +1,3 @@
-'use strict'
 import path from 'path'
 import kebabCase from 'lodash/kebabCase'
 import { configureToMatchImageSnapshot } from 'jest-image-snapshot'

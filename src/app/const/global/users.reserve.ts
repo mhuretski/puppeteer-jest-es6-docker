@@ -1,4 +1,3 @@
-'use strict'
 import SITE from '@config/site/mapping'
 import { userAlreadyTakenExceptionMessage, userNotFoundExceptionMessage } from '@const/global/errors'
 import { ReserveUser, UpdatedGlobal, User } from '@interfaces'

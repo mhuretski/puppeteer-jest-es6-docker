@@ -1,4 +1,3 @@
-'use strict'
 import pages from '@pages'
 import { multiPack, test } from '@actions'
 import { defaultEmailWaitTimer } from '@const/global/timers'

@@ -1,4 +1,3 @@
-'use strict'
 import pages from '@pages'
 import Footer from '@components/shared/footer'
 import { singlePack, ui, test } from '@actions'

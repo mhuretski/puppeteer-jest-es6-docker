@@ -1,4 +1,3 @@
-'use strict'
 import pages from '@pages'
 import { multiPack, ui, test, exist } from '@actions'
 import checkWithLogin from '@precondition/guest.and.logged.in'

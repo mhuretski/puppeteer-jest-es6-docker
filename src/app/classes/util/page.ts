@@ -1,4 +1,3 @@
-'use strict'
 import { Browser, Page as PuppeteerPage } from 'puppeteer'
 import { desktopUserAgent } from '@config/devices/device.settings'
 import { currentDevice, setDevice, updatePuppeteerPageObjects } from '@actions'

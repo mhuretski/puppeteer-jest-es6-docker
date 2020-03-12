@@ -1,4 +1,3 @@
-'use strict'
 import Page from '@classes/util/page'
 
 export default class Coverage extends Page {

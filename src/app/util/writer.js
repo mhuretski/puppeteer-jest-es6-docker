@@ -1,3 +1,4 @@
+'use strict'
 const kebabCase = require('lodash/kebabCase')
 const {
   perfDir,

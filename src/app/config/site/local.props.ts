@@ -1,4 +1,3 @@
-'use strict'
 import { StartProperties } from '@interfaces'
 
 const CONFIG: StartProperties = {

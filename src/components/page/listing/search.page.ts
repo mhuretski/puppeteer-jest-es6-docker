@@ -1,4 +1,3 @@
-'use strict'
 import Listing from '@components/page/listing/listing'
 import { logoS } from '@components/shared/util/constant'
 

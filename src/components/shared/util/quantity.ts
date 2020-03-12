@@ -1,4 +1,3 @@
-'use strict'
 import { BACKSPACE, DELETE, LEFT, RIGHT } from '@const/global/keyboard.keys'
 import AbstractContentObject from '@classes/util/abstract.content.object'
 

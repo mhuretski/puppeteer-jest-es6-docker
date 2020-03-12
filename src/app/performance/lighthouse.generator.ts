@@ -1,4 +1,3 @@
-'use strict'
 import { perfProps } from '@config/puppet.settings'
 import { NETWORK_CONNECTIONS, NetworkProps } from './network.props'
 import {

@@ -1,4 +1,3 @@
-'use strict'
 import Checker from '@classes/util/checker'
 import Coverage from '@classes/performance/coverage'
 import Performance from '@classes/performance/performance'

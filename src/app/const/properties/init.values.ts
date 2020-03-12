@@ -1,4 +1,3 @@
-'use strict'
 import { CHECK, ENV_TO_CHECK } from '@const/global/flags'
 
 const varName = function(): string {

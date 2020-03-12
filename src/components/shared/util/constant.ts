@@ -1,4 +1,3 @@
-'use strict'
 export const spinnerS = '.loader.loader_shutter.loader_detached.loader_fixed'
 export const pageContainerS = '#pageContainer'
 export const visiblePageS = '#app'

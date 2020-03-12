@@ -1,4 +1,3 @@
-'use strict'
 import AbstractContentObject from '@classes/util/abstract.content.object'
 import { DYN_ADMIN } from '@const/properties/constants'
 

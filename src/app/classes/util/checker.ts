@@ -1,4 +1,3 @@
-'use strict'
 import Waiter from './waiter'
 import { screenExpectOption } from '@config/screenshot.settings'
 import { defaultAnimationWaitTimer, defaultWaitTimer } from '@const/global/timers'

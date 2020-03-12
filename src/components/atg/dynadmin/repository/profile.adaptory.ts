@@ -1,4 +1,3 @@
-'use strict'
 import {
   defaultLoginValue as testEmail,
   DYN_ADMIN,

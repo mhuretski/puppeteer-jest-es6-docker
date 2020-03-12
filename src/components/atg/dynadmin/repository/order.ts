@@ -1,4 +1,3 @@
-'use strict'
 import DynAdmin from '@components/atg/dynadmin/dynadmin.page'
 
 export default class OrderRepository extends DynAdmin {

@@ -1,4 +1,3 @@
-'use strict'
 import { buildSpecificTempDir } from '@const/global/paths'
 import {
   clearDir,

@@ -1,4 +1,3 @@
-'use strict'
 import { Viewport } from 'puppeteer'
 
 // list of desktop resolutions is configured here

@@ -1,4 +1,3 @@
-'use strict'
 import {
   API_LAUNCH,
   API_TEST,

@@ -1,4 +1,3 @@
-'use strict'
 import { defaultAnimationWaitTimer, defaultWaitTimer } from '@const/global/timers'
 import Rest from '@classes/util/rest'
 

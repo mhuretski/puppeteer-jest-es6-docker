@@ -1,4 +1,3 @@
-'use strict'
 import { defaultResponseWaitTimer, defaultWaitTimer } from '@const/global/timers'
 import { defaultPasswordValue } from '@const/properties/constants'
 import Rest from '@classes/util/rest'

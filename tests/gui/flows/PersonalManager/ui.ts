@@ -1,4 +1,3 @@
-'use strict'
 import login from '@precondition/login'
 import pages from '@pages'
 import Header from '@components/shared/header'

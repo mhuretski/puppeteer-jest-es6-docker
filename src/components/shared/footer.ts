@@ -1,4 +1,3 @@
-'use strict'
 import { defaultLoginValue as testEmail } from '@const/properties/constants'
 import Rest from '@classes/util/rest'
 

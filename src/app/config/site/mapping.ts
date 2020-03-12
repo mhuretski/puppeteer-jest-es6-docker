@@ -1,4 +1,3 @@
-'use strict'
 import { DEV, envFlag, PROD, STAGE } from '@const/properties/init.values'
 import LOCAL_CONFIG from './local.props'
 import DEV_CONFIG from './dev.props'

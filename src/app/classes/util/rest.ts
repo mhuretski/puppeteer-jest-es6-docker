@@ -1,4 +1,3 @@
-'use strict'
 import AbstractContentObject from '@classes/util/abstract.content.object'
 import { defaultResponseWaitTimer, defaultWaitTimer } from '@const/global/timers'
 import { Response } from 'puppeteer'

@@ -1,4 +1,3 @@
-'use strict'
 import pages from '@pages'
 import { exist, multiPack, test, ui } from '@actions'
 import Basket from '@components/page/basket.page'

@@ -1,4 +1,3 @@
-'use strict'
 import { StartProperties } from '@interfaces'
 import {
   DYN_PASSWORD,

@@ -1,4 +1,3 @@
-'use strict'
 import BaseModal from '@components/modal/common/base.modal'
 
 const selectors = {

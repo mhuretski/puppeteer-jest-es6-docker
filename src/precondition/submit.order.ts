@@ -1,4 +1,3 @@
-'use strict'
 import { PagesMap } from '@classes/pages.map'
 import { test } from '@actions'
 import { emptyBasketExecute } from '@precondition/empty.basket'

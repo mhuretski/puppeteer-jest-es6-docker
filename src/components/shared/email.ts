@@ -1,4 +1,3 @@
-'use strict'
 import { EMAIL } from '@const/properties/constants'
 import { ElementHandle } from 'puppeteer'
 import {

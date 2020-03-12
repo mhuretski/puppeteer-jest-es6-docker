@@ -1,4 +1,3 @@
-'use strict'
 import { LaunchOptions, Page, Viewport } from 'puppeteer'
 import { DEBUG } from '@const/global/flags'
 import { buildSpecificTempDir } from '@const/global/paths'

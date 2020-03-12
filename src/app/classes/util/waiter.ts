@@ -1,4 +1,3 @@
-'use strict'
 import Page from './page'
 import { spinnerS } from '@components/shared/util/constant'
 import {

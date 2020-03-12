@@ -1,4 +1,3 @@
-'use strict'
 const generatePassword = (length = 4,
         uppercase = true,
         lowercase = true,
