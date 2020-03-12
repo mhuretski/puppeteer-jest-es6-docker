@@ -49,21 +49,21 @@ export default class HomePage extends Rest {
 
   async openBanner(position = 0) {
     await super.click(selectors.banner.scrollButtons(position))
-    await super.clickOnPuppeteer(selectors.banner.itemButtons, position)
+    await super.clickOn(selectors.banner.itemButtons, position)
   }
 
   async clickOnCategory(position = 0) {
-    await super.clickOnPuppeteer(selectors.categories.itemButtons, position)
+    await super.clickOn(selectors.categories.itemButtons, position)
   }
 
   async clickOnBestSeller(position = 0) {
-    await super.clickOnPuppeteer(
+    await super.clickOn(
       selectors.bestSellers.itemButtons, position,
     )
   }
 
   async expandCulture(position = 0) {
-    await super.clickOnPuppeteer(
+    await super.clickOn(
       selectors.recommendation.cultureButton, position,
     )
   }
@@ -73,7 +73,7 @@ export default class HomePage extends Rest {
   }
 
   async openProductFromRecommendation(position = 0) {
-    await super.clickOnPuppeteer(
+    await super.clickOn(
       selectors.recommendation.productItemButton, position,
     )
   }
@@ -100,7 +100,7 @@ export default class HomePage extends Rest {
   }
 
   async clickOnTechnologiesLink(position = 0) {
-    await super.clickOnPuppeteer(
+    await super.clickOn(
       selectors.technologies.itemButtons, position,
     )
   }

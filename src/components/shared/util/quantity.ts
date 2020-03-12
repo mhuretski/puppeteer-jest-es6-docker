@@ -17,9 +17,9 @@ export const itemsToAdd = async (
   quantityInputSelector: string) => {
   if (amount >= 1 && amount <= 99999) {
     const value = amount.toString()
-    await page.clickOnPuppeteer(quantityInputSelector, position)
+    await page.clickOn(quantityInputSelector, position)
     await page.pressKeyboardKey(DELETE)
-    const input = await page.getElementFromListPuppeteer(
+    const input = await page.getElementFromList(
       quantityInputSelector, position)
     if (value.length === 1) {
       await input.type(value)

@@ -30,7 +30,7 @@ export default class Header extends Rest {
 
   async searchFor(text: string, timeout = defaultWaitTimer) {
     await super.emptyValue(selectors.searchInput)
-    await super.clickPuppeteer(selectors.searchInput)
+    await super.click(selectors.searchInput)
     await super.waitForAnimation()
 
     const typed: Promise<any> = super.type(selectors.searchInput, text, timeout)
@@ -44,7 +44,7 @@ export default class Header extends Rest {
   }
 
   async clickSearch() {
-    await super.click(selectors.searchButton)
+    await super.clickInBrowser(selectors.searchButton)
   }
 
   async hoverCatalogMenu() {
@@ -64,15 +64,15 @@ export default class Header extends Rest {
 
   async openAccountPage() {
     await this.expandAccountMenu()
-    await super.click(selectors.dropdownAccount)
+    await super.clickInBrowser(selectors.dropdownAccount)
   }
 
   async openBasket() {
-    await super.click(selectors.miniBasket.container)
+    await super.clickInBrowser(selectors.miniBasket.container)
   }
 
   async clickHamburgerMenu() {
-    await super.click(selectors.hamburgerMenu)
+    await super.clickInBrowser(selectors.hamburgerMenu)
   }
 
   async clickOnMenuItem(position = 0) {
@@ -80,7 +80,7 @@ export default class Header extends Rest {
   }
 
   async openLoginModal() {
-    await super.click(selectors.loginBtn)
+    await super.clickInBrowser(selectors.loginBtn)
   }
 
   async checkLogoExists() {
@@ -102,7 +102,7 @@ export default class Header extends Rest {
   async expandAccountMenu() {
     if (await super.isMobile()) {
       // await this.tapAccountMenu()
-      await super.click(selectors.accountMenu)
+      await super.clickInBrowser(selectors.accountMenu)
     } else {
       await this.hoverAccountMenu()
     }
@@ -110,13 +110,13 @@ export default class Header extends Rest {
   }
 
   async clickLogout() {
-    await super.click(selectors.dropdownLogout)
+    await super.clickInBrowser(selectors.dropdownLogout)
     await super.waitForSpinnerToDisappear()
     await super.waitFor(selectors.loginBtn)
   }
 
   async clickOnPersonalManager() {
-    await super.click(selectors.personalManagerContainer)
+    await super.clickInBrowser(selectors.personalManagerContainer)
   }
 
   async getAmountOfProductsInMiniCart(): Promise<number> {

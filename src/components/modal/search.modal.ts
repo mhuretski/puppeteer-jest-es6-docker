@@ -42,7 +42,7 @@ export default class SearchModal extends Rest {
   }
 
   async forceFocusState(text: string, timeout = defaultWaitTimer) {
-    await super.setValueToInput(selectors.searchInput, text, timeout)
+    await super.setValue(selectors.searchInput, text, timeout)
     await super.waitFor(selectors.state, timeout)
     await this._page.evaluate((selector) => {
       document.querySelector(selector).className += ' open focus'
@@ -54,14 +54,14 @@ export default class SearchModal extends Rest {
     await super.waitForAnimation()
     try {
       await super.waitFor(selectors.container)
-      return super.countElements(selectors.item)
+      return super.countElementsInBrowser(selectors.item)
     } catch (e) {
       return 0
     }
   }
 
   async clickOnItem(position = 0, timeout = defaultAnimationWaitTimer) {
-    await super.clickOnPuppeteer(selectors.item, position)
+    await super.clickOn(selectors.item, position)
     await super.waitToBeInvisible(selectors.container, timeout)
     await super.waitForAnimation()
   }

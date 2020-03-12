@@ -95,16 +95,16 @@ export default class Basket extends Rest {
   }
 
   async continueShopping() {
-    await super.clickPuppeteer(selectors.continueShopping)
+    await super.click(selectors.continueShopping)
     await super.waitForSpinnerToDisappear()
   }
 
   async goToCatalogFromEmptyBasket() {
-    await super.clickPuppeteer(selectors.goToCatalogFromEmptyBasket)
+    await super.click(selectors.goToCatalogFromEmptyBasket)
   }
 
   async confirmTerms() {
-    await super.clickWithoutException(selectors.confirmTerms)
+    await super.clickInBrowserWithoutException(selectors.confirmTerms)
   }
 
   async submit() {
@@ -126,9 +126,9 @@ export default class Basket extends Rest {
 
   async _chooseClosestDate(date: 'startDate' | 'endDate') {
     if (await super.isInvisible(selectors.date.modal.container)) {
-      await super.scrollIntoViewIfNeeded(selectors.date[date].container)
+      await super.scrollIntoView(selectors.date[date].container)
       await super.waitForAnimation()
-      await super.clickPuppeteer(selectors.date[date].container)
+      await super.click(selectors.date[date].container)
       await super.waitForAnimation()
     }
     await super.click(selectors.date.modal.closestAvailableDate)
@@ -163,7 +163,7 @@ export default class Basket extends Rest {
 
   async getAmountOfProducts(): Promise<number> {
     try {
-      return await super.countElementsPuppeteer(selectors.products.product)
+      return await super.countElements(selectors.products.product)
     } catch (e) {
       return 0
     }
@@ -186,14 +186,14 @@ export default class Basket extends Rest {
 
   async increaseQuantity(amount = 1, position = 0) {
     for (let i = 0; i < amount; i++) {
-      await super.clickOnPuppeteer(
+      await super.clickOn(
         selectors.products.quantity.increase, position)
     }
   }
 
   async decreaseQuantity(amount = 1, position = 0) {
     for (let i = 0; i < amount; i++) {
-      await super.clickOnPuppeteer(
+      await super.clickOn(
         selectors.products.quantity.decrease, position)
     }
   }

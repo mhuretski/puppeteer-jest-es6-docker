@@ -106,12 +106,12 @@ export default class GoogleEmail extends Rest {
   }
 
   async _fillCredentials(user: User) {
-    await super.setValueToInput(
+    await super.setValue(
       selectors.login.email, user.login)
-    await super.click(selectors.login.emailNextButton)
+    await super.clickInBrowser(selectors.login.emailNextButton)
     await this.waitGoogleLoading()
-    await super.setValueToInput(selectors.login.password, user.password)
-    await super.click(selectors.login.passwordNextButton)
+    await super.setValue(selectors.login.password, user.password)
+    await super.clickInBrowser(selectors.login.passwordNextButton)
     await this.waitGoogleLoading()
   }
 
@@ -133,7 +133,7 @@ export default class GoogleEmail extends Rest {
       }
 
       if (await securityAppear()) {
-        await super.click(selectors.login.next)
+        await super.clickInBrowser(selectors.login.next)
         await this._fillCredentials(user)
       }
     }
@@ -177,7 +177,7 @@ export default class GoogleEmail extends Rest {
         return this._device(isMobile).container
       } else {
         await super.waitInNodeApp(timeout)
-        await super.reload()
+        await super.reloadInBrowser()
       }
     }
     throw new Error(`Not found new email with tittle "${emailTypeTitle}" within ${timeout * numberOfIterations} milliseconds.`)
@@ -231,7 +231,7 @@ export default class GoogleEmail extends Rest {
 
   async openEmail(emailTypeTitle: string, isMobile: boolean) {
     const table: ElementHandle<Element> | null =
-      await super.getElementPuppeteer(
+      await super.getElement(
         this._device(isMobile).preview.list)
     if (table) {
       const emailItem =
@@ -247,7 +247,7 @@ export default class GoogleEmail extends Rest {
 
   async clickPasswordRecoveryLink() {
     await super.executeInNewPage(
-      super.clickOnLastPuppeteer,
+      super.clickOnLast,
       selectors.template.passwordRecovery.recoveryLink)
   }
 
@@ -296,7 +296,7 @@ export default class GoogleEmail extends Rest {
       return
     }
     const amount =
-      await super.countElementsPuppeteer(
+      await super.countElements(
         this._device(isMobile).preview.item.container)
     for (let i = 1; i <= amount; i++) {
       const time = await this.getText(

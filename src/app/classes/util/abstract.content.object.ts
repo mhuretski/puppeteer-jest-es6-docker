@@ -50,10 +50,16 @@ export default class AbstractContentObject extends Checker {
     return openPage()
   }
 
-  async reload() {
+  async reloadInBrowser() {
     await this._page.evaluate(() => {
       location.reload()
     })
+    await super.waitForSpinnerToDisappear()
+    await super.waitForImages()
+  }
+
+  async reload(waitUntil: LoadEvent = 'networkidle2') {
+    await this._page.reload({ waitUntil: waitUntil })
     await super.waitForSpinnerToDisappear()
     await super.waitForImages()
   }
@@ -79,7 +85,7 @@ export default class AbstractContentObject extends Checker {
     }
   }
 
-  async goBackPuppeteer() {
+  async goBack() {
     await this._page.goBack()
     await super.waitForSpinnerToDisappear()
     return true
@@ -92,13 +98,13 @@ export default class AbstractContentObject extends Checker {
     return true
   }
 
-  async goBack() {
+  async goBackInBrowser() {
     await this._page.evaluate(() => window.history.back())
     await super.waitForSpinnerToDisappear()
     await super.waitForImages()
   }
 
-  async goForwardPuppeteer() {
+  async goForward() {
     await this._page.goForward()
   }
 
@@ -199,12 +205,14 @@ export default class AbstractContentObject extends Checker {
     }
   }
 
-  async setValue(selector: string, value: string, timeout = defaultWaitTimer):
-    Promise<void> {
+  async setValue(
+          selector: string,
+          text: string,
+          timeout = defaultWaitTimer): Promise<void> {
     await super.waitFor(selector, timeout)
-    await this._page.evaluate((selector, value) => {
-      document.querySelector(selector).value = value
-    }, selector, value)
+    await this._page.evaluate(({ selector, text }) => {
+      document.querySelector(selector).value = text
+    }, { selector, text })
   }
 
   async emptyValue(selector: string, timeout = defaultWaitTimer):
@@ -257,11 +265,7 @@ export default class AbstractContentObject extends Checker {
 
   async hover(selector: string, timeout = defaultWaitTimer) {
     await super.waitFor(selector, timeout)
-    try {
-      await this._page.hover(selector)
-    } catch (e) {
-      console.log(`WARNING couldn't hover selector "${selector}"`)
-    }
+    await this._page.hover(selector)
   }
 
   async focus(selector: string, timeout = defaultWaitTimer) {
@@ -269,7 +273,7 @@ export default class AbstractContentObject extends Checker {
     await this._page.focus(selector)
   }
 
-  async clickPuppeteer(selector: string, timeout = defaultWaitTimer) {
+  async click(selector: string, timeout = defaultWaitTimer) {
     if (super.isXpath(selector)) {
       await this.waitForXPath(selector, timeout)
       const element = (await this._page.$x(selector)).shift()
@@ -288,15 +292,15 @@ export default class AbstractContentObject extends Checker {
    * Click without moving page to center of clicked area.
    * Evaluated in browser.
    */
-  async click(selector: string, timeout = defaultWaitTimer) {
+  async clickInBrowser(selector: string, timeout = defaultWaitTimer) {
     await super.waitFor(selector, timeout)
-    const result = await this.clickWithoutException(selector)
+    const result = await this.clickInBrowserWithoutException(selector)
     if (!result) {
       throw new Error(clickTimeoutExceptionMessage(selector, timeout))
     }
   }
 
-  async clickWithoutException(selector: string) {
+  async clickInBrowserWithoutException(selector: string) {
     return this._page.evaluate((selector: string) => {
       const elem: ChromeHTMLElement | null = document.querySelector(selector)
       if (elem) {
@@ -332,17 +336,17 @@ export default class AbstractContentObject extends Checker {
     }, selector)
   }
 
-  async clickOn(selector: string,
+  async clickOnElementInBrowser(selector: string,
           position = 0,
           timeout = defaultWaitTimer) {
-    await this.clickElementFromList(selector, position, timeout)
+    await this.clickElementFromListInBrowser(selector, position, timeout)
     await super.waitForSpinnerToDisappear()
   }
 
-  async clickAndGetOnPuppeteer(selector: string,
+  async clickAndGetOn(selector: string,
           position = 0,
           timeout = defaultWaitTimer): Promise<ElementHandle> {
-    const element = await this.getElementFromListPuppeteer(
+    const element = await this.getElementFromList(
       selector, position, timeout)
     await element.click()
     await super.waitForSpinnerToDisappear()
@@ -359,67 +363,56 @@ export default class AbstractContentObject extends Checker {
     }, selector, position)
   }
 
-  async scrollIntoViewIfNeeded(selector: string, timeout = defaultWaitTimer) {
-    await super.waitFor(selector, timeout)
-    await this._page.evaluate((selector: string) => {
-      const elem: any = document.querySelector(selector)
-      if (elem) {
-        elem.scrollIntoViewIfNeeded()
-      }
-    }, selector)
-  }
-
-  async countElements(selector: string)
+  async countElementsInBrowser(selector: string)
     : Promise<number> {
     return this._page.evaluate((selector) => {
       return document.querySelectorAll(selector).length
     }, selector)
   }
 
-  async countElementsPuppeteer(selector: string)
+  async countElements(selector: string)
     : Promise<number> {
-    return (await this.getElementsPuppeteer(selector)).length
+    return (await this.getElements(selector)).length
   }
 
-  async getElementsPuppeteer(selector: string)
+  async getElements(selector: string)
     : Promise<ElementHandle[]> {
     return this._page.$$(selector)
   }
 
-  async getElementPuppeteer(selector: string): Promise<ElementHandle | null> {
+  async getElement(selector: string): Promise<ElementHandle | null> {
     await super.waitFor(selector)
     return this._page.$(selector)
   }
 
-  async clickOnPuppeteer(selector: string,
+  async clickOn(selector: string,
           position = 0,
           timeout = defaultWaitTimer) {
-    await this.clickElementFromListPuppeteer(selector, position, timeout)
+    await this.clickElementFromList(selector, position, timeout)
     await super.waitForSpinnerToDisappear()
   }
 
-  async clickOnLastPuppeteer(selector: string,
+  async clickOnLast(selector: string,
           timeout = defaultWaitTimer) {
-    const elem = await this.getLastElementFromListPuppeteer(selector, timeout)
+    const elem = await this.getLastElementFromList(selector, timeout)
     await elem.click()
     await super.waitForSpinnerToDisappear()
   }
 
-  async clickElementFromListPuppeteer(selector: string,
+  async clickElementFromList(selector: string,
           position = 0,
           timeout = defaultWaitTimer) {
-    const element = await this.getElementFromListPuppeteer(
+    const element = await this.getElementFromList(
       selector, position, timeout)
-    await this.scrollIntoView(selector, position, timeout)
     await super.waitForAnimation()
     await element.click()
   }
 
-  async getElementFromListPuppeteer(selector: string,
+  async getElementFromList(selector: string,
           position = 0,
           timeout = defaultWaitTimer) {
     await super.waitFor(selector, timeout)
-    const elements = await this.getElementsPuppeteer(selector)
+    const elements = await this.getElements(selector)
     if (position >= elements.length) {
       throw new Error(
         itemOutOfBoundExceptionMessage(selector, position, elements.length))
@@ -427,20 +420,20 @@ export default class AbstractContentObject extends Checker {
     return elements[position]
   }
 
-  async getLastElementFromListPuppeteer(selector: string,
+  async getLastElementFromList(selector: string,
           timeout = defaultWaitTimer) {
     await super.waitFor(selector, timeout)
-    const elements = await this.getElementsPuppeteer(selector)
+    const elements = await this.getElements(selector)
     if (elements.length === 0) {
       throw new Error(`Couldn't find any elements for selector: "${selector}".`)
     }
     return elements[elements.length - 1]
   }
 
-  async getElementFromParentElementPuppeteer(element: ElementHandle,
+  async getElementFromParentElement(element: ElementHandle,
           selector: string,
           position = 0) {
-    const elem = await this.getElementsFromParentElementPuppeteer(
+    const elem = await this.getElementsFromParentElement(
       element, selector)
     if (position >= elem.length) {
       throw new Error(
@@ -449,12 +442,12 @@ export default class AbstractContentObject extends Checker {
     return elem[position]
   }
 
-  async getElementsFromParentElementPuppeteer(parentElement: ElementHandle,
+  async getElementsFromParentElement(parentElement: ElementHandle,
           selector: string): Promise<ElementHandle[]> {
     return parentElement.$$(selector)
   }
 
-  async clickElementFromList(selector: string,
+  async clickElementFromListInBrowser(selector: string,
           position = 0,
           timeout = defaultWaitTimer) {
     await super.waitFor(selector, timeout)
@@ -522,9 +515,9 @@ export default class AbstractContentObject extends Checker {
           optionSelector = 'option',
           timeout = defaultWaitTimer) {
     if (typeof option !== 'string') {
-      const select = await this.getElementPuppeteer(selector)
+      const select = await this.getElement(selector)
       if (select) {
-        option = await this.getSelectValue(selector, option, optionSelector)
+        option = await this._getSelectValue(selector, option, optionSelector)
       } else {
         throw new Error(selectExceptionMessage(selector, timeout))
       }
@@ -532,7 +525,7 @@ export default class AbstractContentObject extends Checker {
     await this._page.select(selector, option)
   }
 
-  async selectByOptionPosition(selector: string,
+  async selectByOptionPositionInBrowser(selector: string,
           position: number,
           optionSelector = 'option',
           triggerChangeEvent = true,
@@ -555,11 +548,11 @@ export default class AbstractContentObject extends Checker {
     }
   }
 
-  async getSelectValue(selector: string,
+  async _getSelectValue(selector: string,
           option: number,
           optionSelector = 'option'): Promise<string> {
     const optionValues: string[] =
-      await this.getSelectOptionValues(selector, optionSelector)
+      await this._getSelectOptionValues(selector, optionSelector)
     if (option >= optionValues.length) {
       throw new Error(
         itemOutOfBoundExceptionMessage(
@@ -568,7 +561,7 @@ export default class AbstractContentObject extends Checker {
     return optionValues[option]
   }
 
-  async getSelectOptionValues(
+  async _getSelectOptionValues(
           selector: string,
           optionsSelector = 'options',
   ): Promise<string[]> {
@@ -582,16 +575,6 @@ export default class AbstractContentObject extends Checker {
       }
       return mappedValues
     }, selector, optionsSelector)
-  }
-
-  async setValueToInput(
-          selector: string,
-          text: string,
-          timeout = defaultWaitTimer) {
-    await super.waitFor(selector, timeout)
-    await this._page.evaluate(({ selector, text }) => {
-      document.querySelector(selector).value = text
-    }, { selector, text })
   }
 
   async pressEnter() {

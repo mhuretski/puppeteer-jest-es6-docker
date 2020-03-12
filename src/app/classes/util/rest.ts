@@ -7,7 +7,7 @@ export default class Rest extends AbstractContentObject {
           ...rest: Array<string>) {
     const rests: Array<Promise<any>> = []
     rest.forEach(obj => rests.push(super.waitForResponseURLToContain(obj)))
-    await super.clickPuppeteer(selector)
+    await super.click(selector)
     await Promise.all(rests).catch(e => console.log('clickWithResponse', e))
     if (waitSpinner) {
       await super.waitForSpinnerToDisappear()
@@ -19,13 +19,12 @@ export default class Rest extends AbstractContentObject {
           rests: Array<string> = [],
           waitSpinner = true,
           optionSelector = 'option',
-          triggerChangeEvent = true,
           timeout = defaultWaitTimer) {
     const restArr: Array<Promise<any>> = []
     rests.forEach(
       obj => restArr.push(super.waitForResponseURLToContain(obj)))
-    await super.selectByOptionPosition(
-      selector, position, optionSelector, triggerChangeEvent, timeout)
+    await super.selectOption(
+      selector, position, optionSelector, timeout)
     await Promise.all(rests).catch(e => console.log('selectWithResponse', e))
     if (waitSpinner) {
       await super.waitForSpinnerToDisappear()
@@ -97,7 +96,7 @@ export default class Rest extends AbstractContentObject {
     await super.scrollIntoView(selector, position)
     const response: any = waitForResponse.call(this, timeout)
 
-    const clicked = super.clickOnPuppeteer(selector, position)
+    const clicked = super.clickOn(selector, position)
     await this.checkResponseForErrors(errorMessage, response, timeout)
     await Promise.all([clicked, response])
       .catch(e => console.log('resolveClickWithResponse', e))

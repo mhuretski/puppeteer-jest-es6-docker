@@ -104,7 +104,7 @@ export default class DynAdmin extends AbstractContentObject {
   }
 
   async searchInRepository(text: string) {
-    await super.setValueToInput(selectors.inputField, text)
-    await super.click(selectors.submitButton)
+    await super.setValue(selectors.inputField, text)
+    await super.clickInBrowser(selectors.submitButton)
   }
 }
