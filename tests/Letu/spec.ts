@@ -8,7 +8,7 @@ singlePack('products', () => {
     const LetuPage = po?.rest
 
     const path = 'https://www.letu.ru/product/l-etual-podarochnaya-korobka-l-etual-srednyaya/60800005/sku/75200005'
-    await LetuPage.open(path, true, undefined)
+    await LetuPage.open(path, true, 'networkidle0')
 
     await LetuPage.clickWithResponse('.btn.btn-lg.btn-primary', true, 'addItemToOrder')
     await LetuPage.clickWithResponse('a[href="cart"]', true, 'cart')

@@ -8,7 +8,7 @@ import {
 } from '@const/global/errors'
 import {
   Cookie,
-  DirectNavigationOptions,
+  LoadEvent,
   ElementHandle,
   SetCookie,
 } from 'puppeteer'
@@ -26,12 +26,12 @@ import { ChromeHTMLElement, NodeListOf } from '@interfaces'
 export default class AbstractContentObject extends Checker {
   async open(path = MAIN_PAGE,
           waitForSpinner = true,
-          options: DirectNavigationOptions = { waitUntil: 'networkidle2' },
+          waitUntil: LoadEvent = 'networkidle2',
   ) {
     try {
-      await this._page.goto(path, options)
+      await this._page.goto(path, { waitUntil: waitUntil })
     } catch (e) {
-      console.log(`WARNING Couldn't wait until "${options.waitUntil} is fired trying to navigate to "${path}".`, e)
+      console.log(`WARNING Couldn't wait until "${waitUntil} is fired trying to navigate to "${path}".`, e)
     }
     if (waitForSpinner) {
       await super.waitForSpinnerToDisappear()
@@ -41,9 +41,10 @@ export default class AbstractContentObject extends Checker {
   async openRelative(path: string,
           selectorToCheck?: string,
           waitForSpinner = true,
+          waitUntil: LoadEvent = 'networkidle2',
   ) {
     const openPage = async () => {
-      await this.open(`${MAIN_PAGE}${path}`, waitForSpinner)
+      await this.open(`${MAIN_PAGE}${path}`, waitForSpinner, waitUntil)
       if (selectorToCheck) await super.waitFor(selectorToCheck)
     }
     return openPage()
