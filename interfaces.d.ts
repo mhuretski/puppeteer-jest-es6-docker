@@ -3,7 +3,7 @@ import { Browser } from 'puppeteer'
 declare global {
   namespace NodeJS {
     interface Global {
-      puppBrowser: Promise<Browser> | string
+      puppBrowser: Promise<Browser>
     }
   }
 }

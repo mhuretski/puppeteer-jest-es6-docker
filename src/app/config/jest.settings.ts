@@ -7,12 +7,8 @@ import {
   UI_LAUNCH,
 } from '@const/properties/init.values'
 import { toMatchImageSnapshot } from '@config/screenshot.settings'
-import puppeteer, { Browser } from 'puppeteer'
+import { Browser } from 'puppeteer'
 import { CHECK } from '@const/global/flags'
-import { uiProps } from '@config/puppet.settings'
-
-global.puppBrowser = (typeof global.puppBrowser === 'string') ?
-  puppeteer.launch(uiProps) : global.puppBrowser
 
 export let browser: Browser
 export const checkBrowserConnectionBeforeAll =
