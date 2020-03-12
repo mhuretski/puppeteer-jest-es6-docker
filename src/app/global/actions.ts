@@ -16,7 +16,7 @@ import {
 } from '@const/properties/init.values'
 import { defaultViewport } from '@config/puppet.settings'
 import { browser, checkBrowserConnectionBeforeAll } from '@config/jest.settings'
-import devices, { desktopUserAgent } from '@config/devices/device.settings'
+import devices from '@config/devices/device.settings'
 import pageObjects from '@pages'
 import path from 'path'
 import {
@@ -62,7 +62,7 @@ export const updatePuppeteerPageObjects = (page: PuppeteerPage) => {
 export const setDevice = async (name: string) => {
   const deviceObject = devices.find(e => e.name === name)
   if (deviceObject !== undefined) {
-    isMobileDevice = deviceObject.userAgent !== desktopUserAgent
+    isMobileDevice = deviceObject.viewport.isMobile
     await puppeteerPage.emulate(deviceObject)
   }
 }
