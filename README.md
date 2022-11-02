@@ -12,7 +12,8 @@ docker pull mhuretski/puppet-jest-es6
 
 ## start in nodejs locally
 ```bash
-npm test --ENV_TO_CHECK=<LOCAL> --BUILD_NUMBER=<BUILD_NUMBER> <SPEC> --CHECK=<UI> --SCREENSHOT=<SCREENSHOT> --debug
+npm test --forceExit --runInBand --
+--ENV_TO_CHECK=<LOCAL> --BUILD_NUMBER=<BUILD_NUMBER> <SPEC> --CHECK=<UI> --SCREENSHOT=<SCREENSHOT> --debug
 <LOCAL> - local environment (options: LOCAL DEV STAGE PROD)
 <BUILD_NUMBER> - specifies folder for output
 <SPEC> - specifies filename pattern to run 
@@ -25,11 +26,10 @@ npm test --ENV_TO_CHECK=<LOCAL> --BUILD_NUMBER=<BUILD_NUMBER> <SPEC> --CHECK=<UI
     options: 'UI', 'API', 'REST', 'SOAP', 'SPEC', 'PERF', 'TEST'
 <SCREENSHOT> - specifies whether to make screenshots
 --debug - run non-headless
---forceExit
 ```
 ##### Example
 ```bash
-npm test --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=100 spec --CHECK=UI --debug --SCREENSHOT=true --forceExit
+npm test --forceExit --runInBand -- --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=100 spec --CHECK=UI --debug --SCREENSHOT=true
 ```
 ##### Simplified Example
 ```bash
@@ -47,12 +47,14 @@ docker create --name=LOCAL_TEST_SPEC \
   mhuretski/puppet-jest-es6 \
   npm test \
   --silent \
+  --forceExit \
+  --runInBand \
+  -- \
   --ENV_TO_CHECK=LOCAL \
   --BUILD_NUMBER=100 \
   SPEC \
   --CHECK=SPEC \
-  --SCREENSHOT=true \
-  --forceExit
+  --SCREENSHOT=true
 ```
 
 ##### IDE scope setup pattern:

@@ -25,6 +25,7 @@ if [[ "$CHECK" =~ ^(UI|API|REST|SOAP|SPEC|PERF|TEST)$ ]]; then
   --silent \
   --runInBand \
   --forceExit \
+  -- \
   --ENV_TO_CHECK=${ENV_TO_CHECK} \
   --BUILD_NUMBER=${BUILD_NUMBER} \
   ${START_FLAG} \

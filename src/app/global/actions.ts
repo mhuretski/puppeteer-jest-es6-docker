@@ -37,7 +37,7 @@ import { SOAP } from '@const/properties/constants'
 import { Page as PuppeteerPage } from 'puppeteer'
 import { defaultPerformanceWaitTimer, defaultTimeout, defaultWaitTimer } from '@const/global/timers'
 import { errorInPreviousTest, startErrorExceptionMessage, errorResult } from '@const/global/errors'
-import { CHECK } from '@const/global/flags'
+import { BUILD_NUMBER, CHECK } from '@const/global/flags'
 
 const stackTrace = require('stack-trace')
 
@@ -278,7 +278,7 @@ const getPerformanceResults = (name: string, setup: PerformanceSetup) => {
     beforeAll(async () => {
         performance = await getPerformance(setup.URL, setup.options.networkCondition)
         if (setup.writeReport) {
-            writePerformance(name, setup.options, performance.report)
+            writePerformance(name, setup.options, performance.report, BUILD_NUMBER)
         }
         console.log(
             `${name} ${setup.options.networkCondition.emulatedFormFactor} ${

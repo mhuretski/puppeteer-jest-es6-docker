@@ -24,7 +24,7 @@
     "scripts": {
         "test": "jest",
         "check-types": "tsc",
-        "local": "npm test --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=1 spec --CHECK=SPEC --debug --SCREENSHOT=false --runInBand"
+        "local": "npm test --runInBand -- --ENV_TO_CHECK=LOCAL --BUILD_NUMBER=1 spec --CHECK=SPEC --debug --SCREENSHOT=false"
     },
     "jest-junit": {
         "suiteName": "Test Execution",
@@ -91,7 +91,7 @@
         "https": "^1.0.0",
         "jest": "^24.9.0",
         "jest-environment-node": "^25.1.0",
-        "jest-html-reporter": "^2.8.0",
+        "jest-html-reporter": "^3.7.0",
         "jest-image-snapshot": "^2.12.0",
         "jest-junit": "^6.4.0",
         "lighthouse": "^5.6.0",

@@ -43,11 +43,11 @@ const writeResult = (result, path, stringify = true) => {
     }
 }
 
-const writePerformance = (name, options, result) => {
+const writePerformance = (name, options, result, buildNumber) => {
     const filename = kebabCase(
         `perf-${name}-${options.emulatedFormFactor}-${options.connection}-throttling-${options.throttlingRate}-${currentTime}`
     )
-    const buildNumber = process.env.npm_config_BUILD_NUMBER
+
     const buildSpecificDir = buildNumber ? `${buildNumber}/` : ''
     const filePath = `${resultDir}/${perfDir}/${buildSpecificDir}${filename}.${options.output}`
     writeFileP.sync(filePath, result)
