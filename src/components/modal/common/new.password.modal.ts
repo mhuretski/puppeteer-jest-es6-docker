@@ -1,9 +1,9 @@
 import BaseModal from '@components/modal/common/base.modal'
 
 const selectors = {
-  container: '#newPasswordModalContainer',
+    container: '#newPasswordModalContainer',
 }
 
 export default class NewPasswordModal extends BaseModal {
-  static getSelectors = () => selectors
+    static getSelectors = () => selectors
 }

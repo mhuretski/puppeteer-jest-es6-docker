@@ -1,12 +1,12 @@
 import Rest from '@classes/util/rest'
 
 const selectors = {
-  closeModalXButton: '#closeModalX',
+    closeModalXButton: '#closeModalX',
 }
 
 export default class BaseModal extends Rest {
-  async close() {
-    await super.click(selectors.closeModalXButton)
-    return true
-  }
+    async close() {
+        await super.click(selectors.closeModalXButton)
+        return true
+    }
 }

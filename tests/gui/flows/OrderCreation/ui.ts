@@ -11,31 +11,31 @@ const user = 1
 const basketSelectors = Basket.getSelectors()
 
 multiPack('Order creation', () => {
-  const Basket = pages.basket
+    const Basket = pages.basket
 
-  const execute = () => {
-    emptyBasket(pages)
-    itemsToBasket(pages)
-    test('open basket', async () => Basket.openThis())
-    test('set valid end date', async () => {
-      await Basket.setClosestEndDate()
-      const end = await Basket.getEndDate()
-      expect(end.length).toEqual(10)
-    })
-    ui('submit order front', async () => {
-      await Basket.confirmTerms()
-      await Basket.submit()
-      await Basket.checkSuccess()
-    })
-    exist('front title', basketSelectors.success.title)
-    exist('front start from homepage', basketSelectors.success.startFromHomepage)
-    exist('front continue shopping', basketSelectors.success.continueShopping)
-    test('order existence in system', async () => {
-      await pages.orderRepository.open(DYN_ADMIN.OrderRepository)
-      const status = await pages.orderRepository.getOrderStatus(orderId)
-      expect(status).toBe('SUBMITTED')
-    })
-  }
+    const execute = () => {
+        emptyBasket(pages)
+        itemsToBasket(pages)
+        test('open basket', async () => Basket.openThis())
+        test('set valid end date', async () => {
+            await Basket.setClosestEndDate()
+            const end = await Basket.getEndDate()
+            expect(end.length).toEqual(10)
+        })
+        ui('submit order front', async () => {
+            await Basket.confirmTerms()
+            await Basket.submit()
+            await Basket.checkSuccess()
+        })
+        exist('front title', basketSelectors.success.title)
+        exist('front start from homepage', basketSelectors.success.startFromHomepage)
+        exist('front continue shopping', basketSelectors.success.continueShopping)
+        test('order existence in system', async () => {
+            await pages.orderRepository.open(DYN_ADMIN.OrderRepository)
+            const status = await pages.orderRepository.getOrderStatus(orderId)
+            expect(status).toBe('SUBMITTED')
+        })
+    }
 
-  loggedIn(pages, user, execute)
+    loggedIn(pages, user, execute)
 })

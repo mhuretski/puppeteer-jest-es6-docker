@@ -9,22 +9,20 @@ import login from '@precondition/login'
  * Function should contain boolean parameter indicating whether user is
  * guest (false) or logged in (true).
  */
-const loggedIn =
-  (pages: PagesMap, user: User | undefined | number,
-          ...fns: FunctionWithBooleanParameter[]) => {
+const loggedIn = (pages: PagesMap, user: User | undefined | number, ...fns: FunctionWithBooleanParameter[]) => {
     let position
     try {
-      if (typeof user === 'number') {
-        position = user
-        user = RESERVE_USER(user)
-      }
-      login(pages, user)
-      fns.forEach(fn => fn(true))
+        if (typeof user === 'number') {
+            position = user
+            user = RESERVE_USER(user)
+        }
+        login(pages, user)
+        fns.forEach((fn) => fn(true))
     } finally {
-      if (position !== undefined) {
-        FREE_USER(position)
-      }
+        if (position !== undefined) {
+            FREE_USER(position)
+        }
     }
-  }
+}
 
 export default loggedIn

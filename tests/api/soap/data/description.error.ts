@@ -1,7 +1,6 @@
 import SITE from '@config/site/mapping'
 
-const request =
-  `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://schemas.xmlsoap.org/ws/2002/07/secext">
+const request = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://schemas.xmlsoap.org/ws/2002/07/secext">
   <soapenv:Header>
     <sec:Security>
       <sec:UsernameToken>

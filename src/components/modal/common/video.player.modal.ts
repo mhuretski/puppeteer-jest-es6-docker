@@ -1,9 +1,9 @@
 import BaseModal from '@components/modal/common/base.modal'
 
 const selectors = {
-  container: '#videoPlayerModalContainer',
+    container: '#videoPlayerModalContainer',
 }
 
 export default class VideoPlayerModal extends BaseModal {
-  static getSelectors = () => selectors
+    static getSelectors = () => selectors
 }

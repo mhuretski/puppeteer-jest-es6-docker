@@ -1,10 +1,9 @@
 import Rest from '@classes/util/rest'
 
 const selectors = {
-  breadcrumbs: '#articleOneColumnPageWithCollapsingTextBreadcrumbs',
+    breadcrumbs: '#articleOneColumnPageWithCollapsingTextBreadcrumbs',
 }
 
-export default class ArticleOneColumnPageWithCollapsingText
-  extends Rest {
-  static getSelectors = () => selectors
+export default class ArticleOneColumnPageWithCollapsingText extends Rest {
+    static getSelectors = () => selectors
 }

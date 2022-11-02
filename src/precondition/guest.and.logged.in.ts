@@ -9,12 +9,10 @@ import loggedIn from '@precondition/logged.in'
  * Function should contain boolean parameter indicating whether user is
  * guest (false) or logged in (true).
  */
-const checkWithLogin =
-  (pages: PagesMap, user: User | undefined | number,
-          ...fns: FunctionWithBooleanParameter[]) => {
+const checkWithLogin = (pages: PagesMap, user: User | undefined | number, ...fns: FunctionWithBooleanParameter[]) => {
     openHomepage(pages)
-    fns.forEach(fn => fn(false))
+    fns.forEach((fn) => fn(false))
     loggedIn(pages, user, ...fns)
-  }
+}
 
 export default checkWithLogin

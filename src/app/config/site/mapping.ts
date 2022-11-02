@@ -9,21 +9,20 @@ import { StartProperties } from '@interfaces'
 
 let SITE: StartProperties
 switch (ENV_TO_CHECK) {
-  case DEV:
-    SITE = DEV_CONFIG
-    break
-  case STAGE:
-    SITE = STAGE_CONFIG
-    break
-  case PROD:
-    SITE = PROD_CONFIG
-    break
-  case 'LOCAL':
-    SITE = LOCAL_CONFIG
-    break
-  default:
-    throw new Error(
-      startErrorExceptionMessage(envFlag.name, ENV_TO_CHECK, envFlag.values))
+    case DEV:
+        SITE = DEV_CONFIG
+        break
+    case STAGE:
+        SITE = STAGE_CONFIG
+        break
+    case PROD:
+        SITE = PROD_CONFIG
+        break
+    case 'LOCAL':
+        SITE = LOCAL_CONFIG
+        break
+    default:
+        throw new Error(startErrorExceptionMessage(envFlag.name, ENV_TO_CHECK, envFlag.values))
 }
 
 export default SITE

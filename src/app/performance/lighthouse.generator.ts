@@ -1,16 +1,15 @@
 import { perfProps } from '@config/puppet.settings'
 import { NETWORK_CONNECTIONS, NetworkProps } from './network.props'
 import {
-  defaultExpectedResults,
-  defaultNetworkCondition,
-  ExpectedResults,
-  NetworkConditionsPerformance,
-  PerformanceSetup,
+    defaultExpectedResults,
+    defaultNetworkCondition,
+    ExpectedResults,
+    NetworkConditionsPerformance,
+    PerformanceSetup,
 } from './template'
 import puppeteer, { Page, Target } from 'puppeteer'
 
 const lighthouse = require('lighthouse')
-
 
 /**
  * @param {Page} page
@@ -18,45 +17,44 @@ const lighthouse = require('lighthouse')
  * @param {number} throttlingRate
  * @return {promise}
  */
-const simulateConditions = async (page: Page, networkPreset: NetworkProps,
-  throttlingRate: number = 0) => {
-  const client = await page.target().createCDPSession()
-  await client.send('Network.enable')
-  await client.send('Network.emulateNetworkConditions', networkPreset)
-  await client.send('Emulation.setCPUThrottlingRate', { rate: throttlingRate })
+const simulateConditions = async (page: Page, networkPreset: NetworkProps, throttlingRate: number = 0) => {
+    const client = await page.target().createCDPSession()
+    await client.send('Network.enable')
+    await client.send('Network.emulateNetworkConditions', networkPreset)
+    await client.send('Emulation.setCPUThrottlingRate', { rate: throttlingRate })
 }
 
 interface Category {
-  id: string;
-  title: string;
-  description?: string;
-  manualDescription?: string;
-  score: number | null;
-  auditRefs: any[];
+    id: string
+    title: string
+    description?: string
+    manualDescription?: string
+    score: number | null
+    auditRefs: any[]
 }
 
 export interface PerformanceResults {
-  report: any,
-  lhr: {
-    requestedUrl: string;
-    finalUrl: string;
-    fetchTime: string;
-    lighthouseVersion: string;
-    audits: any;
-    categories: Map<string, Category>;
-    categoryGroups?: any;
-    configSettings: any;
-    runWarnings: string[];
-    runtimeError?: { code: string, message: string };
-    userAgent: string;
-    environment: any;
-    timing: any;
-    i18n: {
-      rendererFormattedStrings: any,
-      icuMessagePaths: any
-    };
-    stackPacks?: any[];
-  }
+    report: any
+    lhr: {
+        requestedUrl: string
+        finalUrl: string
+        fetchTime: string
+        lighthouseVersion: string
+        audits: any
+        categories: Map<string, Category>
+        categoryGroups?: any
+        configSettings: any
+        runWarnings: string[]
+        runtimeError?: { code: string; message: string }
+        userAgent: string
+        environment: any
+        timing: any
+        i18n: {
+            rendererFormattedStrings: any
+            icuMessagePaths: any
+        }
+        stackPacks?: any[]
+    }
 }
 
 /**
@@ -66,24 +64,25 @@ export interface PerformanceResults {
  * @param {NetworkConditionsPerformance} options
  * @return {promise}
  */
-export const getPerformance = async (url: string,
-  options: NetworkConditionsPerformance): Promise<PerformanceResults> => {
-  const browser = await puppeteer.launch(perfProps)
+export const getPerformance = async (
+    url: string,
+    options: NetworkConditionsPerformance
+): Promise<PerformanceResults> => {
+    const browser = await puppeteer.launch(perfProps)
 
-  browser.on('targetchanged', async (target: Target) => {
-    const page = await target.page()
-    if (page && page.target().url() === url) {
-      await simulateConditions(page,
-        NETWORK_CONNECTIONS[options.connection], options.throttlingRate)
-    }
-  })
+    browser.on('targetchanged', async (target: Target) => {
+        const page = await target.page()
+        if (page && page.target().url() === url) {
+            await simulateConditions(page, NETWORK_CONNECTIONS[options.connection], options.throttlingRate)
+        }
+    })
 
-  options.port = (new URL(browser.wsEndpoint())).port
-  const { report, lhr } = await lighthouse(url, options)
+    options.port = new URL(browser.wsEndpoint()).port
+    const { report, lhr } = await lighthouse(url, options)
 
-  await browser.close()
+    await browser.close()
 
-  return { report, lhr }
+    return { report, lhr }
 }
 
 /**
@@ -113,23 +112,25 @@ export const getPerformance = async (url: string,
  * }}
  */
 export interface PerformanceCondition {
-  URL: string,
-  networkCondition: NetworkConditionsPerformance,
-  expectedResults: ExpectedResults,
-  writeReport: boolean
+    URL: string
+    networkCondition: NetworkConditionsPerformance
+    expectedResults: ExpectedResults
+    writeReport: boolean
 }
 
-export const performanceCondition = (URL: string,
-        // eslint-disable-next-line max-len
-        networkCondition: NetworkConditionsPerformance = defaultNetworkCondition,
-        expectedResults: ExpectedResults = defaultExpectedResults,
-        writeReport: boolean = true): PerformanceSetup => {
-  return {
-    URL: URL,
-    options: {
-      networkCondition: networkCondition,
-      expectedResults: expectedResults,
-    },
-    writeReport: writeReport,
-  }
+export const performanceCondition = (
+    URL: string,
+    // eslint-disable-next-line max-len
+    networkCondition: NetworkConditionsPerformance = defaultNetworkCondition,
+    expectedResults: ExpectedResults = defaultExpectedResults,
+    writeReport: boolean = true
+): PerformanceSetup => {
+    return {
+        URL: URL,
+        options: {
+            networkCondition: networkCondition,
+            expectedResults: expectedResults,
+        },
+        writeReport: writeReport,
+    }
 }

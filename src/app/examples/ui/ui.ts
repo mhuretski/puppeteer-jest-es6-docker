@@ -6,13 +6,13 @@ import { multiPack, singlePack, ui } from '@actions'
  * Runs with one default desktop resolution.
  */
 singlePack('Package name', () => {
-  ui('user can navigate to page (run once)', async () => pages.homePage.open())
-  ui('login modal is opened', async () => pages.header.openLoginModal())
-  ui('user is logged in', async () => {
-    await pages.loginModal.typeLogin()
-    await pages.loginModal.typePassword()
-    await pages.loginModal.submitLogin()
-  })
+    ui('user can navigate to page (run once)', async () => pages.homePage.open())
+    ui('login modal is opened', async () => pages.header.openLoginModal())
+    ui('user is logged in', async () => {
+        await pages.loginModal.typeLogin()
+        await pages.loginModal.typePassword()
+        await pages.loginModal.submitLogin()
+    })
 })
 
 /**
@@ -20,11 +20,11 @@ singlePack('Package name', () => {
  * Runs for default list of specified devices and desktop resolutions.
  */
 multiPack('Login and Logout flow', () => {
-  ui('user can navigate to page (run multiple)', async () => pages.homePage.open())
-  ui('login modal is opened', async () => pages.header.openLoginModal())
-  ui('user is logged in', async () => {
-    await pages.loginModal.typeLogin()
-    await pages.loginModal.typePassword()
-    await pages.loginModal.submitLogin()
-  })
+    ui('user can navigate to page (run multiple)', async () => pages.homePage.open())
+    ui('login modal is opened', async () => pages.header.openLoginModal())
+    ui('user is logged in', async () => {
+        await pages.loginModal.typeLogin()
+        await pages.loginModal.typePassword()
+        await pages.loginModal.submitLogin()
+    })
 })

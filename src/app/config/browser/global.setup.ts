@@ -7,13 +7,11 @@ import { DEFAULT_BROWSER_PATH_DIR, WS_ENDPOINT } from '@const/global/constants'
 
 // noinspection JSUnusedGlobalSymbols
 export default async () => {
-  const browser = await puppeteer.launch(uiProps)
+    const browser = await puppeteer.launch(uiProps)
 
-  // @ts-ignore
-  global.__BROWSER_GLOBAL__ = browser
+    // @ts-ignore
+    global.__BROWSER_GLOBAL__ = browser
 
-  mkdirp.sync(DEFAULT_BROWSER_PATH_DIR)
-  fs.writeFileSync(
-    path.join(DEFAULT_BROWSER_PATH_DIR, WS_ENDPOINT), browser.wsEndpoint(),
-  )
+    mkdirp.sync(DEFAULT_BROWSER_PATH_DIR)
+    fs.writeFileSync(path.join(DEFAULT_BROWSER_PATH_DIR, WS_ENDPOINT), browser.wsEndpoint())
 }

@@ -1,4 +1,4 @@
-export const spinnerS = '.loader.loader_shutter.loader_detached.loader_fixed'
+export const spinnerS = "[class*='indicator-root']"
 export const pageContainerS = '#pageContainer'
 export const visiblePageS = '#app'
 export const leadS = '#leadId'
