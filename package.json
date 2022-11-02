@@ -86,7 +86,7 @@
     },
     "dependencies": {
         "acorn": "^7.1.1",
-        "axios": "^0.19.2",
+        "axios": "^0.21.2",
         "dateformat": "^3.0.3",
         "https": "^1.0.0",
         "jest": "^24.9.0",
